@@ -8,6 +8,7 @@ const fs = require("fs");
 
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const adminRoutes = require("./routes/AdminRoutes");
 
 const app = express();
 
@@ -92,6 +93,10 @@ app.get("/", (req, res) => {
       "The Yarn Spot Backend is running!",
   });
 });
+app.use(
+  "/api/admin",
+  adminRoutes
+);
 
 // =====================================================
 // 404 ROUTE

@@ -23,44 +23,63 @@ function App() {
               WEBSITE ROUTES
           ========================= */}
 
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={<Home />}
+          />
 
-          <Route path="/shop" element={<Shop />} />
+          <Route
+            path="/shop"
+            element={<Shop />}
+          />
 
-          <Route path="/about" element={<About />} />
+          <Route
+            path="/about"
+            element={<About />}
+          />
 
-          <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/cart"
+            element={<Cart />}
+          />
 
-          <Route path="/checkout" element={<Checkout />} />
+          <Route
+            path="/checkout"
+            element={<Checkout />}
+          />
 
+          {/* =========================
+              ADMIN LOGIN
+          ========================= */}
+
+          <Route
+            path="/admin-login"
+            element={<AdminLogin />}
+          />
 
           {/* =========================
               ADMIN ROUTES
           ========================= */}
 
-  <Route
-  path="/admin-login"
-  element={<AdminLogin />}
-/>
+          <Route
+            path="/admin"
+            element={<AdminDashboard />}
+          />
 
-<Route
-  path="/admin"
-  element={<AdminDashboard />}
-/>
+          <Route
+            path="/admin/orders"
+            element={<Orders />}
+          />
 
-<Route
-  path="/admin/orders"
-  element={<Orders />}
-/>
-<Route
-  path="/admin/products"
-  element={<AdminProductManager />}
-/>
+          <Route
+            path="/admin/products"
+            element={<AdminProductManager />}
+          />
 
-<Route
-  path="/admin/orders/:id"
-  element={<OrdersDetails />}
-/>
+          <Route
+            path="/admin/orders/:id"
+            element={<OrdersDetails />}
+          />
 
         </Routes>
       </BrowserRouter>

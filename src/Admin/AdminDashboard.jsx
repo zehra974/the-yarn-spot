@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import AdminProductManager from "../Components/AdminProductManager";
+
 const API_URL = "http://localhost:8000/api/orders";
 
 const STATUS_OPTIONS = [
@@ -77,6 +77,22 @@ export default function AdminDashboard() {
   });
 
   // =========================================================
+  // AUTH CHECK
+  // IMPORTANT: This is INSIDE the component.
+  // =========================================================
+
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) {
+      window.location.replace("/admin-login");
+      return;
+    }
+
+    fetchOrders();
+  }, []);
+
+  // =========================================================
   // FETCH ORDERS
   // =========================================================
 
@@ -90,13 +106,35 @@ export default function AdminDashboard() {
 
       setError("");
 
-      const response = await fetch(API_URL);
+      const token = localStorage.getItem("adminToken");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch orders");
+      if (!token) {
+        window.location.replace("/admin-login");
+        return;
+      }
+
+      const response = await fetch(API_URL, {
+        method: "GET",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("adminToken");
+        window.location.replace("/admin-login");
+        return;
       }
 
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to fetch orders"
+        );
+      }
 
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -110,10 +148,6 @@ export default function AdminDashboard() {
       setRefreshing(false);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
 
   // =========================================================
   // TOAST
@@ -143,6 +177,13 @@ export default function AdminDashboard() {
     try {
       setUpdatingStatus(true);
 
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        window.location.replace("/admin-login");
+        return;
+      }
+
       const response = await fetch(
         `${API_URL}/${orderId}/status`,
         {
@@ -150,6 +191,7 @@ export default function AdminDashboard() {
 
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
 
           body: JSON.stringify({
@@ -159,6 +201,12 @@ export default function AdminDashboard() {
       );
 
       const data = await response.json();
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("adminToken");
+        window.location.replace("/admin-login");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -293,14 +341,16 @@ export default function AdminDashboard() {
   const openWhatsApp = (phone, customerName) => {
     if (!phone) return;
 
-    let cleanPhone = phone.replace(/\D/g, "");
+    let cleanPhone = String(phone).replace(/\D/g, "");
 
     if (cleanPhone.startsWith("0")) {
       cleanPhone = `92${cleanPhone.substring(1)}`;
     }
 
     const message = encodeURIComponent(
-      `Assalamualaikum ${customerName || ""}! This is The Yarn Spot regarding your order.`
+      `Assalamualaikum ${
+        customerName || ""
+      }! This is The Yarn Spot regarding your order.`
     );
 
     window.open(
@@ -336,11 +386,11 @@ export default function AdminDashboard() {
 
       {/* =====================================================
           TOAST
-      ====================================================== */}
+      ===================================================== */}
 
       {toast.show && (
         <div
-          className={`fixed right-5 top-5 z-[100] max-w-sm rounded-2xl px-5 py-4 text-sm font-medium shadow-2xl transition-all duration-300 ${
+          className={`fixed right-5 top-5 z-[100] max-w-sm rounded-2xl px-5 py-4 text-sm font-medium shadow-2xl ${
             toast.type === "error"
               ? "bg-red-500 text-white"
               : "bg-black text-white"
@@ -358,20 +408,20 @@ export default function AdminDashboard() {
 
       {/* =====================================================
           NAVBAR
-      ====================================================== */}
+      ===================================================== */}
 
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-6 py-4 text-white shadow-xl backdrop-blur-xl md:px-10">
-
         <div className="mx-auto flex max-w-[1500px] items-center justify-between">
 
           <a
             href="/"
-            className="text-lg font-bold tracking-[2px] text-[#D4A017] transition hover:tracking-[3px] md:text-2xl"
+            className="text-lg font-bold tracking-[2px] text-[#D4A017] md:text-2xl"
           >
             THE YARN SPOT
           </a>
 
           <div className="hidden items-center gap-7 text-sm md:flex">
+
             <a
               href="/"
               className="text-gray-400 transition hover:text-[#D4A017]"
@@ -389,6 +439,7 @@ export default function AdminDashboard() {
             <span className="rounded-full bg-[#D4A017]/10 px-4 py-2 text-[#D4A017]">
               Admin
             </span>
+
           </div>
 
           <button
@@ -410,10 +461,9 @@ export default function AdminDashboard() {
         </div>
       </nav>
 
-
       {/* =====================================================
           MAIN
-      ====================================================== */}
+      ===================================================== */}
 
       <main className="mx-auto max-w-[1500px] px-5 py-8 md:px-10 md:py-12">
 
@@ -459,14 +509,11 @@ export default function AdminDashboard() {
 
         </div>
 
-
         {/* =====================================================
             STATS
-        ====================================================== */}
+        ===================================================== */}
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-          {/* TOTAL */}
 
           <div className="group rounded-3xl bg-black p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1">
 
@@ -492,9 +539,6 @@ export default function AdminDashboard() {
 
           </div>
 
-
-          {/* PENDING */}
-
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -519,9 +563,6 @@ export default function AdminDashboard() {
 
           </div>
 
-
-          {/* DELIVERED */}
-
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -545,9 +586,6 @@ export default function AdminDashboard() {
             </p>
 
           </div>
-
-
-          {/* REVENUE */}
 
           <div className="rounded-3xl border border-[#D4A017]/30 bg-[#D4A017] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
@@ -575,10 +613,9 @@ export default function AdminDashboard() {
 
         </div>
 
-
         {/* =====================================================
             SECONDARY STATS
-        ====================================================== */}
+        ===================================================== */}
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
 
@@ -586,7 +623,6 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400">
               Confirmed
             </p>
-
             <p className="mt-2 text-2xl font-bold">
               {stats.confirmed}
             </p>
@@ -596,7 +632,6 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400">
               Processing
             </p>
-
             <p className="mt-2 text-2xl font-bold">
               {stats.processing}
             </p>
@@ -606,7 +641,6 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400">
               Shipped
             </p>
-
             <p className="mt-2 text-2xl font-bold">
               {stats.shipped}
             </p>
@@ -616,7 +650,6 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400">
               Cancelled
             </p>
-
             <p className="mt-2 text-2xl font-bold">
               {stats.cancelled}
             </p>
@@ -624,14 +657,11 @@ export default function AdminDashboard() {
 
         </div>
 
-
         {/* =====================================================
             ORDERS
-        ====================================================== */}
+        ===================================================== */}
 
         <section className="mt-10 rounded-[30px] bg-white p-5 shadow-sm md:p-7">
-
-          {/* TOP */}
 
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
 
@@ -647,10 +677,7 @@ export default function AdminDashboard() {
 
             </div>
 
-
             <div className="flex flex-col gap-3 sm:flex-row">
-
-              {/* SEARCH */}
 
               <div className="relative">
 
@@ -670,9 +697,6 @@ export default function AdminDashboard() {
 
               </div>
 
-
-              {/* FILTER */}
-
               <select
                 value={statusFilter}
                 onChange={(e) =>
@@ -680,6 +704,7 @@ export default function AdminDashboard() {
                 }
                 className="rounded-full border border-gray-200 bg-white px-5 py-3 text-sm outline-none transition focus:border-[#D4A017]"
               >
+
                 <option value="All">
                   All Status
                 </option>
@@ -692,14 +717,12 @@ export default function AdminDashboard() {
                     {status}
                   </option>
                 ))}
+
               </select>
 
             </div>
 
           </div>
-
-
-          {/* RESULT INFO */}
 
           <div className="mt-7 flex items-center justify-between border-b border-gray-100 pb-4">
 
@@ -729,37 +752,29 @@ export default function AdminDashboard() {
 
           </div>
 
-
-          {/* ERROR */}
-
           {error && (
             <div className="my-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
               {error}
             </div>
           )}
 
+          {!error && filteredOrders.length === 0 && (
+            <div className="py-20 text-center">
 
-          {/* NO ORDERS */}
-
-          {!error &&
-            filteredOrders.length === 0 && (
-              <div className="py-20 text-center">
-
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F7F1E3] text-2xl">
-                  🧶
-                </div>
-
-                <h3 className="mt-5 text-xl font-bold">
-                  No orders found
-                </h3>
-
-                <p className="mt-2 text-sm text-gray-500">
-                  Try changing your search or filter.
-                </p>
-
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F7F1E3] text-2xl">
+                🧶
               </div>
-            )}
 
+              <h3 className="mt-5 text-xl font-bold">
+                No orders found
+              </h3>
+
+              <p className="mt-2 text-sm text-gray-500">
+                Try changing your search or filter.
+              </p>
+
+            </div>
+          )}
 
           {/* =================================================
               DESKTOP TABLE
@@ -774,31 +789,31 @@ export default function AdminDashboard() {
 
                   <tr className="border-b border-gray-100 text-left">
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Order
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Customer
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Items
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Total
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Status
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Date
                     </th>
 
-                    <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[2px] text-gray-400">
+                    <th className="px-4 py-4 text-xs uppercase tracking-[2px] text-gray-400">
                       Action
                     </th>
 
@@ -829,8 +844,6 @@ export default function AdminDashboard() {
                         className="group border-b border-gray-100 transition hover:bg-[#F7F1E3]/40"
                       >
 
-                        {/* ORDER */}
-
                         <td className="px-4 py-5">
 
                           <p className="font-mono text-xs font-semibold">
@@ -848,9 +861,6 @@ export default function AdminDashboard() {
 
                         </td>
 
-
-                        {/* CUSTOMER */}
-
                         <td className="px-4 py-5">
 
                           <p className="font-semibold">
@@ -859,13 +869,10 @@ export default function AdminDashboard() {
                           </p>
 
                           <p className="mt-1 text-xs text-gray-400">
-                            {customer.phone}
+                            {customer.phone || "—"}
                           </p>
 
                         </td>
-
-
-                        {/* ITEMS */}
 
                         <td className="px-4 py-5">
 
@@ -887,9 +894,6 @@ export default function AdminDashboard() {
 
                         </td>
 
-
-                        {/* TOTAL */}
-
                         <td className="px-4 py-5">
 
                           <p className="font-bold">
@@ -901,9 +905,6 @@ export default function AdminDashboard() {
                           </p>
 
                         </td>
-
-
-                        {/* STATUS */}
 
                         <td className="px-4 py-5">
 
@@ -917,9 +918,6 @@ export default function AdminDashboard() {
 
                         </td>
 
-
-                        {/* DATE */}
-
                         <td className="px-4 py-5">
 
                           <p className="text-sm">
@@ -929,9 +927,6 @@ export default function AdminDashboard() {
                           </p>
 
                         </td>
-
-
-                        {/* ACTION */}
 
                         <td className="px-4 py-5">
 
@@ -959,7 +954,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-
           {/* =================================================
               MOBILE CARDS
           ================================================= */}
@@ -985,7 +979,7 @@ export default function AdminDashboard() {
                 return (
                   <div
                     key={order._id}
-                    className="rounded-2xl border border-gray-100 p-5 transition hover:border-[#D4A017]/40"
+                    className="rounded-2xl border border-gray-100 p-5"
                   >
 
                     <div className="flex items-start justify-between gap-4">
@@ -1000,11 +994,12 @@ export default function AdminDashboard() {
                         </p>
 
                         <h3 className="mt-2 font-bold">
-                          {customer.fullName}
+                          {customer.fullName ||
+                            "Unknown"}
                         </h3>
 
                         <p className="mt-1 text-xs text-gray-400">
-                          {customer.phone}
+                          {customer.phone || "—"}
                         </p>
 
                       </div>
@@ -1018,7 +1013,6 @@ export default function AdminDashboard() {
                       </span>
 
                     </div>
-
 
                     <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
 
@@ -1052,7 +1046,6 @@ export default function AdminDashboard() {
 
                     </div>
 
-
                     <div className="mt-5 flex items-center justify-between">
 
                       <p className="text-xs text-gray-400">
@@ -1083,10 +1076,9 @@ export default function AdminDashboard() {
 
       </main>
 
-
       {/* =====================================================
           ORDER MODAL
-      ====================================================== */}
+      ===================================================== */}
 
       {selectedOrder && (
         <div
@@ -1135,7 +1127,6 @@ export default function AdminDashboard() {
 
                 </div>
 
-
                 <button
                   onClick={() =>
                     setSelectedOrder(null)
@@ -1148,7 +1139,6 @@ export default function AdminDashboard() {
               </div>
 
             </div>
-
 
             {/* MODAL CONTENT */}
 
@@ -1189,7 +1179,6 @@ export default function AdminDashboard() {
                   </button>
 
                 </div>
-
 
                 <div className="grid gap-5 sm:grid-cols-2">
 
@@ -1254,7 +1243,6 @@ export default function AdminDashboard() {
 
               </div>
 
-
               {/* PRODUCTS */}
 
               <div className="rounded-3xl bg-white p-6">
@@ -1282,8 +1270,8 @@ export default function AdminDashboard() {
                           alt={item.name}
                           className="h-20 w-20 rounded-2xl object-cover"
                           onError={(e) => {
-                            e.currentTarget.style.display =
-                              "none";
+                            e.currentTarget.src =
+                              "/images/placeholder.png";
                           }}
                         />
 
@@ -1326,9 +1314,6 @@ export default function AdminDashboard() {
 
                 </div>
 
-
-                {/* TOTAL */}
-
                 <div className="mt-6 border-t border-gray-100 pt-5">
 
                   <div className="flex items-center justify-between">
@@ -1351,7 +1336,6 @@ export default function AdminDashboard() {
 
               </div>
 
-
               {/* STATUS */}
 
               <div className="rounded-3xl bg-black p-6 text-white">
@@ -1373,7 +1357,6 @@ export default function AdminDashboard() {
                     </p>
 
                   </div>
-
 
                   <select
                     value={
@@ -1404,7 +1387,6 @@ export default function AdminDashboard() {
 
                 </div>
 
-
                 {/* STATUS PROGRESS */}
 
                 <div className="mt-8">
@@ -1431,12 +1413,8 @@ export default function AdminDashboard() {
                             selectedOrder.status
                           );
 
-                        const itemIndex =
-                          index;
-
                         const active =
-                          currentIndex >=
-                          itemIndex &&
+                          currentIndex >= index &&
                           selectedOrder.status !==
                             "Cancelled";
 
@@ -1448,7 +1426,7 @@ export default function AdminDashboard() {
                             <div className="flex flex-col items-center">
 
                               <div
-                                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition ${
+                                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                                   active
                                     ? "bg-[#D4A017] text-black"
                                     : "bg-white/10 text-gray-500"
@@ -1471,12 +1449,11 @@ export default function AdminDashboard() {
 
                             </div>
 
-                            {index <
-                              3 && (
+                            {index < 3 && (
                               <div
-                                className={`h-px flex-1 mx-2 ${
+                                className={`mx-2 h-px flex-1 ${
                                   currentIndex >
-                                  index &&
+                                    index &&
                                   selectedOrder.status !==
                                     "Cancelled"
                                     ? "bg-[#D4A017]"
@@ -1495,9 +1472,6 @@ export default function AdminDashboard() {
                 </div>
 
               </div>
-
-
-              {/* CANCEL WARNING */}
 
               {selectedOrder.status ===
                 "Cancelled" && (
