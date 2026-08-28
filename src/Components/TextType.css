@@ -1,0 +1,19 @@
+.text-type {
+  display: inline;
+  white-space: pre-wrap;
+}
+
+.text-type__content {
+  display: inline;
+}
+
+.text-type__cursor {
+  margin-left: 0.18rem;
+  display: inline-block;
+  color: #d4a017;
+  font-weight: 400;
+}
+
+.text-type__cursor--hidden {
+  display: none;
+}
