@@ -6,9 +6,9 @@ require("dotenv").config();
 const path = require("path");
 const fs = require("fs");
 
-const productRoutes = require("./routes/productRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const adminRoutes = require("./routes/AdminRoutes");
+const productRoutes = require("./Routes/productRoutes");
+const orderRoutes = require("./Routes/orderRoutes");
+const adminRoutes = require("./Routes/AdminRoutes");
 
 const app = express();
 
