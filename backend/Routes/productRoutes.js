@@ -11,7 +11,7 @@ const {
 } = require("../controllers/productcontroller");
 
 const upload =
-  require("../Middleware/upload");
+  require("../middleware/upload");
 
 // =====================================================
 // GET ALL PRODUCTS
