@@ -1,85 +1,71 @@
+
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const API_URL =
-  "https://the-yarn-spot.vercel.app/api/admin/login";
+  "https://the-yarn-spot.vercel.app/api/admin/forgot-password";
 
-export default function AdminLogin() {
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+export default function ForgotPassword() {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
-    setError("");
-  };
-
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError("Please enter email and password.");
+    setMessage("");
+    setError("");
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail) {
+      setError("Please enter your admin email.");
       return;
     }
 
     try {
       setLoading(true);
-      setError("");
 
       const response = await fetch(API_URL, {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+
+        body: JSON.stringify({
+          email: cleanEmail,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Login failed."
+          data.message ||
+            "Unable to process your request."
         );
       }
 
-      if (!data.token) {
-        throw new Error(
-          "Authentication token was not received."
-        );
-      }
-
-      localStorage.setItem(
-        "adminToken",
-        data.token
+      setMessage(
+        data.message ||
+          "If an account exists with this email, a password reset link has been sent."
       );
 
-      localStorage.setItem(
-        "adminUser",
-        JSON.stringify(data.admin)
-      );
-
-      navigate("/admin");
+      setEmail("");
 
     } catch (error) {
       console.error(
-        "Admin login error:",
+        "Forgot password error:",
         error
       );
 
       setError(
         error.message ||
-          "Invalid email or password."
+          "Something went wrong. Please try again."
       );
+
     } finally {
       setLoading(false);
     }
@@ -99,22 +85,23 @@ export default function AdminLogin() {
           </p>
 
           <h1 className="text-4xl font-bold">
-            Admin Login
+            Forgot Password?
           </h1>
 
           <p className="mt-3 text-gray-500">
-            Sign in to manage your store.
+            Enter your admin email and we will
+            send you a password reset link.
           </p>
 
         </div>
 
 
-        {/* LOGIN CARD */}
+        {/* CARD */}
 
         <div className="bg-white rounded-[30px] p-7 md:p-9 shadow-xl">
 
           <form
-            onSubmit={handleLogin}
+            onSubmit={handleSubmit}
             className="space-y-5"
           >
 
@@ -128,43 +115,14 @@ export default function AdminLogin() {
 
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                  setMessage("");
+                }}
                 placeholder="admin@theyarnspot.com"
-                autoComplete="username"
-                className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017] focus:ring-4 focus:ring-[#D4A017]/10"
-              />
-
-            </div>
-
-
-            {/* PASSWORD */}
-
-            <div>
-
-              <div className="flex items-center justify-between mb-2">
-
-                <label className="block text-sm font-medium">
-                  Password
-                </label>
-
-                <Link
-                  to="/admin/forgot-password"
-                  className="text-sm text-gray-500 transition hover:text-[#8B6914]"
-                >
-                  Forgot Password?
-                </Link>
-
-              </div>
-
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter admin password"
-                autoComplete="current-password"
+                autoComplete="email"
                 className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017] focus:ring-4 focus:ring-[#D4A017]/10"
               />
 
@@ -180,7 +138,16 @@ export default function AdminLogin() {
             )}
 
 
-            {/* LOGIN BUTTON */}
+            {/* SUCCESS */}
+
+            {message && (
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                {message}
+              </div>
+            )}
+
+
+            {/* BUTTON */}
 
             <button
               type="submit"
@@ -188,11 +155,25 @@ export default function AdminLogin() {
               className="w-full rounded-full bg-black py-4 font-semibold text-white transition hover:bg-[#D4A017] hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
-                ? "Signing In..."
-                : "Sign In →"}
+                ? "Sending..."
+                : "Send Reset Link →"}
             </button>
 
           </form>
+
+
+          {/* BACK TO LOGIN */}
+
+          <div className="mt-6 text-center">
+
+            <Link
+              to="/admin-login"
+              className="text-sm font-medium text-gray-600 transition hover:text-[#8B6914]"
+            >
+              ← Back to Admin Login
+            </Link>
+
+          </div>
 
         </div>
 
@@ -207,4 +188,5 @@ export default function AdminLogin() {
 
     </div>
   );
+}
 

@@ -11,6 +11,9 @@ import AdminDashboard from "./Admin/AdminDashboard";
 import Orders from "./Admin/Orders";
 import OrdersDetails from "./Admin/Orders Details";
 import AdminLogin from "./Admin/AdminLogin";
+import ForgotPassword from "./Admin/ForgotPassword";
+import ResetPassword from "./Admin/ResetPassword";
+
 import AdminProductManager from "./Components/AdminProductManager";
 
 function App() {
@@ -48,6 +51,7 @@ function App() {
             element={<Checkout />}
           />
 
+
           {/* =========================
               ADMIN LOGIN
           ========================= */}
@@ -56,6 +60,27 @@ function App() {
             path="/admin-login"
             element={<AdminLogin />}
           />
+
+
+          {/* =========================
+              FORGOT PASSWORD
+          ========================= */}
+
+          <Route
+            path="/admin/forgot-password"
+            element={<ForgotPassword />}
+          />
+
+
+          {/* =========================
+              RESET PASSWORD
+          ========================= */}
+
+          <Route
+            path="/admin/reset-password/:token"
+            element={<ResetPassword />}
+          />
+
 
           {/* =========================
               ADMIN ROUTES
@@ -88,3 +113,4 @@ function App() {
 }
 
 export default App;
+

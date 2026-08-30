@@ -101,21 +101,45 @@ async function connectDB() {
     "MongoDB connected successfully"
   );
 }
+// =====================================================
+// VERCEL + LOCAL DEVELOPMENT
+// =====================================================
 
-module.exports = async (req, res) => {
-  try {
-    await connectDB();
+if (require.main === module) {
+  connectDB()
+    .then(() => {
+      const PORT = process.env.PORT || 8000;
 
-    return app(req, res);
-  } catch (error) {
-    console.error(
-      "DATABASE / SERVER ERROR:",
-      error
-    );
+      app.listen(PORT, () => {
+        console.log(
+          `Backend running locally on http://localhost:${PORT}`
+        );
+      });
+    })
+    .catch((error) => {
+      console.error(
+        "DATABASE / SERVER ERROR:",
+        error
+      );
 
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
+      process.exit(1);
     });
-  }
-};
+} else {
+  module.exports = async (req, res) => {
+    try {
+      await connectDB();
+
+      return app(req, res);
+    } catch (error) {
+      console.error(
+        "DATABASE / SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  };
+}
