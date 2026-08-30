@@ -1,3 +1,4 @@
+```jsx
 import React, {
   useEffect,
   useState,
@@ -498,9 +499,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen overflow-hidden bg-[#F7F1E3] text-[#171717]">
 
-      {/* =================================================
-          NAVBAR
-      ================================================= */}
+      {/* NAVBAR */}
 
       <nav className="sticky top-0 z-50 flex items-center justify-between bg-black px-6 py-5 text-white shadow-lg md:px-16">
 
@@ -545,9 +544,7 @@ export default function Checkout() {
 
       </nav>
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <section className="relative overflow-hidden bg-black px-6 py-16 text-white md:px-16">
 
@@ -573,17 +570,13 @@ export default function Checkout() {
 
       </section>
 
-      {/* =================================================
-          CHECKOUT
-      ================================================= */}
+      {/* CHECKOUT */}
 
       <section className="px-6 py-16 md:px-16">
 
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_400px]">
 
-          {/* =================================================
-              CUSTOMER DETAILS
-          ================================================= */}
+          {/* CUSTOMER DETAILS */}
 
           <div className="checkout-animate rounded-[30px] bg-white p-7 opacity-0 shadow-sm md:p-10">
 
@@ -600,8 +593,6 @@ export default function Checkout() {
               onSubmit={handlePlaceOrder}
               className="space-y-6"
             >
-
-              {/* NAME */}
 
               <div>
                 <label className="mb-2 block text-sm font-medium">
@@ -623,8 +614,6 @@ export default function Checkout() {
                 />
               </div>
 
-              {/* EMAIL */}
-
               <div>
                 <label className="mb-2 block text-sm font-medium">
                   Email Address *
@@ -644,8 +633,6 @@ export default function Checkout() {
                   className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition duration-300 focus:border-[#D4A017] focus:ring-4 focus:ring-[#D4A017]/10"
                 />
               </div>
-
-              {/* PHONE */}
 
               <div>
                 <label className="mb-2 block text-sm font-medium">
@@ -667,8 +654,6 @@ export default function Checkout() {
                 />
               </div>
 
-              {/* CITY */}
-
               <div>
                 <label className="mb-2 block text-sm font-medium">
                   City *
@@ -689,8 +674,6 @@ export default function Checkout() {
                 />
               </div>
 
-              {/* ADDRESS */}
-
               <div>
                 <label className="mb-2 block text-sm font-medium">
                   Complete Delivery Address *
@@ -710,8 +693,6 @@ export default function Checkout() {
                   className="w-full resize-none rounded-2xl border border-gray-200 px-5 py-4 outline-none transition duration-300 focus:border-[#D4A017] focus:ring-4 focus:ring-[#D4A017]/10"
                 />
               </div>
-
-              {/* NOTES */}
 
               <div>
                 <label className="mb-2 block text-sm font-medium">
@@ -740,9 +721,7 @@ export default function Checkout() {
 
           </div>
 
-          {/* =================================================
-              ORDER SUMMARY
-          ================================================= */}
+          {/* ORDER SUMMARY */}
 
           <div className="checkout-animate opacity-0">
 
@@ -755,8 +734,6 @@ export default function Checkout() {
               <h2 className="mb-8 text-3xl font-bold">
                 Your Order
               </h2>
-
-              {/* PRODUCTS */}
 
               <div className="max-h-[300px] space-y-5 overflow-y-auto pr-2">
 
@@ -811,6 +788,7 @@ export default function Checkout() {
                             onError={(
                               e
                             ) => {
+                              e.currentTarget.onerror = null;
                               e.currentTarget.src =
                                 "/images/placeholder.png";
                             }}
@@ -864,9 +842,7 @@ export default function Checkout() {
 
               </div>
 
-              {/* =================================================
-                  PAYMENT OPTION
-              ================================================= */}
+              {/* PAYMENT OPTION */}
 
               <div className="mt-7 border-t border-white/10 pt-6">
 
@@ -875,8 +851,6 @@ export default function Checkout() {
                 </p>
 
                 <div className="space-y-3">
-
-                  {/* ADVANCE */}
 
                   <button
                     type="button"
@@ -931,8 +905,6 @@ export default function Checkout() {
                     </p>
 
                   </button>
-
-                  {/* FULL */}
 
                   <button
                     type="button"
@@ -992,9 +964,7 @@ export default function Checkout() {
 
               </div>
 
-              {/* =================================================
-                  PAYMENT METHOD
-              ================================================= */}
+              {/* PAYMENT METHOD */}
 
               <div className="mt-6">
 
@@ -1040,8 +1010,6 @@ export default function Checkout() {
 
                 </div>
 
-                {/* PAYMENT INFO */}
-
                 <div className="mt-4 rounded-2xl border border-[#D4A017]/30 bg-[#D4A017]/10 p-4">
 
                   <p className="text-sm font-semibold text-[#D4A017]">
@@ -1073,9 +1041,7 @@ export default function Checkout() {
 
               </div>
 
-              {/* =================================================
-                  TOTAL
-              ================================================= */}
+              {/* TOTAL */}
 
               <div className="mt-7 space-y-4 border-t border-white/10 pt-6">
 
@@ -1169,9 +1135,7 @@ export default function Checkout() {
 
               </div>
 
-              {/* =================================================
-                  PLACE ORDER
-              ================================================= */}
+              {/* PLACE ORDER */}
 
               <button
                 type="submit"
@@ -1209,8 +1173,6 @@ export default function Checkout() {
 
               </button>
 
-              {/* ERROR */}
-
               {message && (
 
                 <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-center">
@@ -1235,9 +1197,7 @@ export default function Checkout() {
 
       </section>
 
-      {/* =================================================
-          FOOTER
-      ================================================= */}
+      {/* FOOTER */}
 
       <footer className="bg-black px-6 py-12 text-white md:px-16">
 
@@ -1292,9 +1252,7 @@ export default function Checkout() {
 
       </footer>
 
-      {/* =================================================
-          SUCCESS POPUP
-      ================================================= */}
+      {/* SUCCESS POPUP */}
 
       {showSuccess && (
 
@@ -1319,8 +1277,6 @@ export default function Checkout() {
                 "successPopup 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
             }}
           >
-
-            {/* ICON */}
 
             <div
               className="relative mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-full bg-black text-[#D4A017]"
@@ -1368,8 +1324,6 @@ export default function Checkout() {
 
             </p>
 
-            {/* ORDER ID */}
-
             {placedOrderId && (
 
               <div className="relative mb-4 rounded-2xl bg-white px-5 py-4">
@@ -1385,8 +1339,6 @@ export default function Checkout() {
               </div>
 
             )}
-
-            {/* PAYMENT SUMMARY */}
 
             <div className="relative mb-5 space-y-3 rounded-2xl bg-white px-5 py-5">
 
@@ -1455,8 +1407,6 @@ export default function Checkout() {
 
             </div>
 
-            {/* PAYMENT DETAILS */}
-
             <div className="relative mb-6 rounded-2xl bg-black p-5 text-left text-white">
 
               <p className="text-xs uppercase tracking-[3px] text-[#D4A017]">
@@ -1485,8 +1435,6 @@ export default function Checkout() {
 
             </div>
 
-            {/* STATUS */}
-
             <div className="relative mb-6 rounded-xl bg-[#F7F1E3] px-4 py-3">
 
               <p className="text-xs leading-5 text-gray-500">
@@ -1498,8 +1446,6 @@ export default function Checkout() {
 
             </div>
 
-            {/* CONTINUE */}
-
             <button
               type="button"
               onClick={
@@ -1509,8 +1455,6 @@ export default function Checkout() {
             >
               Continue Shopping
             </button>
-
-            {/* CLOSE */}
 
             <button
               type="button"
@@ -1528,9 +1472,7 @@ export default function Checkout() {
 
       )}
 
-      {/* =================================================
-          ANIMATIONS
-      ================================================= */}
+      {/* ANIMATIONS */}
 
       <style>
         {`
@@ -1575,3 +1517,4 @@ export default function Checkout() {
     </div>
   );
 }
+```

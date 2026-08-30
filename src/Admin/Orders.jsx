@@ -282,6 +282,8 @@ export default function Orders() {
 
                 </div>
 
+                {/* ADDRESS */}
+
                 <div className="mt-3">
 
                   <p className="text-xs text-gray-400">
@@ -294,6 +296,8 @@ export default function Orders() {
                   </p>
 
                 </div>
+
+                {/* NOTES */}
 
                 {order.customer?.notes && (
                   <div className="mt-3">
@@ -395,6 +399,7 @@ export default function Orders() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Payment Type
                     </p>
@@ -403,9 +408,11 @@ export default function Orders() {
                       {order.paymentType ||
                         "Advance"}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Payment Method
                     </p>
@@ -414,9 +421,11 @@ export default function Orders() {
                       {order.paymentMethod ||
                         "N/A"}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Paid Amount
                     </p>
@@ -428,9 +437,11 @@ export default function Orders() {
                           0
                       ).toLocaleString()}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Remaining Amount
                     </p>
@@ -442,6 +453,7 @@ export default function Orders() {
                           0
                       ).toLocaleString()}
                     </p>
+
                   </div>
 
                 </div>
@@ -467,6 +479,8 @@ export default function Orders() {
                   </p>
 
                 </div>
+
+                {/* VIEW DETAILS */}
 
                 <Link
                   to={`/admin/orders/${order._id}`}

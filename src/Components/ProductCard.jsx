@@ -1,3 +1,4 @@
+
 import React from "react";
 
 const BACKEND_URL =
@@ -5,10 +6,8 @@ const BACKEND_URL =
 
 export default function ProductCard({
   product,
-  onAddToCart,
+  onAddToCart,git add src/Components/ProductCard.jsx
 }) {
-  // IMAGE URL
-
   const getImageUrl = (image) => {
     if (!image) {
       return "/images/placeholder.png";
@@ -42,8 +41,6 @@ export default function ProductCard({
   return (
     <div className="group">
 
-      {/* PRODUCT IMAGE */}
-
       <div className="relative overflow-hidden rounded-[25px] bg-[#F7F1E3]">
 
         <img
@@ -59,8 +56,6 @@ export default function ProductCard({
               "/images/placeholder.png";
           }}
         />
-
-        {/* ADD TO CART */}
 
         <button
           type="button"
@@ -99,8 +94,6 @@ export default function ProductCard({
 
       </div>
 
-      {/* PRODUCT DETAILS */}
-
       <div className="mt-5">
 
         <h3 className="text-lg font-semibold">
@@ -108,15 +101,11 @@ export default function ProductCard({
             "Unnamed Product"}
         </h3>
 
-        {/* CATEGORY */}
-
         {product?.category && (
           <p className="mt-1 text-xs uppercase tracking-[2px] text-gray-400">
             {product.category}
           </p>
         )}
-
-        {/* PRICE */}
 
         <p className="mt-2 font-medium text-[#8B6914]">
           Rs.{" "}
@@ -124,8 +113,6 @@ export default function ProductCard({
             product?.price || 0
           ).toLocaleString()}
         </p>
-
-        {/* STOCK */}
 
         {product?.stock !==
           undefined && (
@@ -136,8 +123,7 @@ export default function ProductCard({
                 : "text-red-500"
             }`}
           >
-            {Number(product.stock) >
-            0
+            {Number(product.stock) > 0
               ? `${product.stock} in stock`
               : "Out of stock"}
           </p>
@@ -148,3 +134,4 @@ export default function ProductCard({
     </div>
   );
 }
+

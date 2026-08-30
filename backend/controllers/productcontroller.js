@@ -75,7 +75,7 @@ const createProduct = async (req, res) => {
 
     if (req.file) {
       image =
-        `https://https://the-yarn-spot.vercel.app/uploads/${req.file.filename}`;
+        `https://the-yarn-spot.vercel.app/uploads/${req.file.filename}`;
     }
 
     // IMAGE URL IF PROVIDED

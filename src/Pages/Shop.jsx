@@ -5,18 +5,12 @@ import React, {
 } from "react";
 
 import ProductCard from "../Components/ProductCard";
-
 import { useCart } from "../Context/CartContext";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import {
-  ScrollTrigger,
-} from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(
-  ScrollTrigger
-);
+gsap.registerPlugin(ScrollTrigger);
 
 const BACKEND_URL =
   "https://the-yarn-spot.vercel.app";
@@ -437,15 +431,9 @@ export default function Shop() {
             <div className="[perspective:1200px]">
 
               <div
-                ref={
-                  handmadeImageRef
-                }
-                onMouseMove={
-                  handleMouseMove
-                }
-                onMouseLeave={
-                  handleMouseLeave
-                }
+                ref={handmadeImageRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
                 className="handmade-image relative cursor-pointer overflow-hidden rounded-[30px]"
               >
 
@@ -571,19 +559,13 @@ export default function Shop() {
                   (product) => (
 
                     <div
-                      key={
-                        product._id
-                      }
+                      key={product._id}
                       className="shop-product-card"
                     >
 
                       <ProductCard
-                        product={
-                          product
-                        }
-                        onAddToCart={
-                          addToCart
-                        }
+                        product={product}
+                        onAddToCart={addToCart}
                       />
 
                     </div>
@@ -699,3 +681,4 @@ export default function Shop() {
     </div>
   );
 }
+
