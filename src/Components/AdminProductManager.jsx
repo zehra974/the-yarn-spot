@@ -1,10 +1,8 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
-const API_URL =
-"https://the-yarn-spot.vercel.app/api/products";
+const API_URL = "https://the-yarn-spot.vercel.app/api/products";
+
+const BACKEND_URL = "https://the-yarn-spot.vercel.app";
 
 const initialForm = {
   name: "",
@@ -14,32 +12,45 @@ const initialForm = {
 };
 
 export default function AdminProductManager() {
-  const [products, setProducts] =
-    useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [form, setForm] = useState(initialForm);
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
-  const [form, setForm] =
-    useState(initialForm);
+  const [editingProduct, setEditingProduct] = useState(null);
 
-  const [selectedImage, setSelectedImage] =
-    useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [imagePreview, setImagePreview] =
-    useState("");
+  // =====================================================
+  // IMAGE URL HELPER
+  // =====================================================
 
-  const [editingProduct, setEditingProduct] =
-    useState(null);
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "/images/placeholder.png";
+    }
 
-  const [error, setError] =
-    useState("");
+    // Already a complete URL
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://") ||
+      image.startsWith("blob:")
+    ) {
+      return image;
+    }
 
-  const [success, setSuccess] =
-    useState("");
+    // Backend image path
+    if (image.startsWith("/")) {
+      return `${BACKEND_URL}${image}`;
+    }
+
+    return `${BACKEND_URL}/${image}`;
+  };
 
   // =====================================================
   // FETCH PRODUCTS
@@ -50,38 +61,66 @@ export default function AdminProductManager() {
       setLoading(true);
       setError("");
 
-      const response =
-        await fetch(API_URL);
+      const response = await fetch(API_URL, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
-      const data =
-        await response.json();
+      const contentType =
+        response.headers.get("content-type") || "";
 
-      if (!response.ok) {
+      if (!contentType.includes("application/json")) {
         throw new Error(
-          data.message ||
-            "Failed to load products"
+          "Products API did not return valid JSON."
         );
       }
 
-      setProducts(
-        Array.isArray(data)
-          ? data
-          : []
-      );
-    } catch (error) {
-      console.error(
-        "PRODUCT FETCH ERROR:",
-        error
-      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || "Failed to load products."
+        );
+      }
+
+      // Handle array response
+      if (Array.isArray(data)) {
+        setProducts(data);
+        return;
+      }
+
+      // Handle { products: [] } response
+      if (Array.isArray(data?.products)) {
+        setProducts(data.products);
+        return;
+      }
+
+      // Handle { data: [] } response
+      if (Array.isArray(data?.data)) {
+        setProducts(data.data);
+        return;
+      }
+
+      setProducts([]);
+    } catch (err) {
+      console.error("PRODUCT FETCH ERROR:", err);
+
+      setProducts([]);
 
       setError(
-        error.message ||
+        err?.message ||
           "Products load nahi ho sake."
       );
     } finally {
       setLoading(false);
     }
   };
+
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
 
   useEffect(() => {
     fetchProducts();
@@ -92,10 +131,7 @@ export default function AdminProductManager() {
   // =====================================================
 
   const handleChange = (e) => {
-    const {
-      name,
-      value,
-    } = e.target;
+    const { name, value } = e.target;
 
     setForm((previous) => ({
       ...previous,
@@ -108,17 +144,37 @@ export default function AdminProductManager() {
   // =====================================================
 
   const handleImageChange = (e) => {
-    const file =
-      e.target.files?.[0];
+    const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
+    // Basic image validation
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
+
+    // Optional size protection: 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be less than 5MB.");
+      return;
+    }
+
+    setError("");
     setSelectedImage(file);
 
-    const preview =
-      URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file);
 
-    setImagePreview(preview);
+    // Revoke old blob URL if necessary
+    setImagePreview((previousPreview) => {
+      if (previousPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(previousPreview);
+      }
+
+      return previewUrl;
+    });
   };
 
   // =====================================================
@@ -126,14 +182,14 @@ export default function AdminProductManager() {
   // =====================================================
 
   const resetForm = () => {
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
     setForm(initialForm);
-
     setSelectedImage(null);
-
     setImagePreview("");
-
     setEditingProduct(null);
-
     setError("");
   };
 
@@ -149,14 +205,17 @@ export default function AdminProductManager() {
       setError("");
       setSuccess("");
 
+      // Validate name
       if (!form.name.trim()) {
         throw new Error(
           "Product name is required."
         );
       }
 
+      // Validate price
       if (
         form.price === "" ||
+        Number.isNaN(Number(form.price)) ||
         Number(form.price) < 0
       ) {
         throw new Error(
@@ -164,38 +223,33 @@ export default function AdminProductManager() {
         );
       }
 
-      // NEW PRODUCT REQUIRES IMAGE
-
-      if (
-        !editingProduct &&
-        !selectedImage
-      ) {
+      // New product needs image
+      if (!editingProduct && !selectedImage) {
         throw new Error(
           "Please select a product image."
         );
       }
 
-      const formData =
-        new FormData();
+      const formData = new FormData();
 
       formData.append(
         "name",
-        form.name
+        form.name.trim()
       );
 
       formData.append(
         "price",
-        form.price
+        String(Number(form.price))
       );
 
       formData.append(
         "description",
-        form.description
+        form.description.trim()
       );
 
       formData.append(
         "category",
-        form.category
+        form.category.trim() || "Crochet"
       );
 
       if (selectedImage) {
@@ -208,26 +262,37 @@ export default function AdminProductManager() {
       let url = API_URL;
       let method = "POST";
 
-      if (editingProduct) {
-        url =
-          `${API_URL}/${editingProduct._id}`;
-
+      if (editingProduct?._id) {
+        url = `${API_URL}/${editingProduct._id}`;
         method = "PUT";
       }
 
-      const response =
-        await fetch(url, {
-          method,
-          body: formData,
-        });
+      const response = await fetch(url, {
+        method,
+        body: formData,
+      });
 
-      const data =
-        await response.json();
+      const contentType =
+        response.headers.get("content-type") || "";
+
+      let data = {};
+
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+
+        if (!response.ok) {
+          throw new Error(
+            text || "Server returned an invalid response."
+          );
+        }
+      }
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Something went wrong."
+          data?.message ||
+            "Something went wrong while saving the product."
         );
       }
 
@@ -248,15 +313,14 @@ export default function AdminProductManager() {
       setTimeout(() => {
         setSuccess("");
       }, 3000);
-
-    } catch (error) {
+    } catch (err) {
       console.error(
         "PRODUCT SUBMIT ERROR:",
-        error
+        err
       );
 
       setError(
-        error.message ||
+        err?.message ||
           "Product save nahi ho saka."
       );
     } finally {
@@ -272,28 +336,30 @@ export default function AdminProductManager() {
     setEditingProduct(product);
 
     setForm({
-      name: product.name || "",
+      name: product?.name || "",
 
       price:
-        product.price !== undefined
+        product?.price !== undefined &&
+        product?.price !== null
           ? String(product.price)
           : "",
 
       description:
-        product.description || "",
+        product?.description || "",
 
       category:
-        product.category || "Crochet",
+        product?.category || "Crochet",
     });
 
     setSelectedImage(null);
 
     setImagePreview(
-      product.image || ""
+      product?.image
+        ? getImageUrl(product.image)
+        : ""
     );
 
     setError("");
-
     setSuccess("");
 
     window.scrollTo({
@@ -306,45 +372,47 @@ export default function AdminProductManager() {
   // DELETE PRODUCT
   // =====================================================
 
-  const handleDelete = async (
-    product
-  ) => {
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${product.name}"?`
-      );
+  const handleDelete = async (product) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${product?.name}"?`
+    );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       setError("");
       setSuccess("");
 
-      const response =
-        await fetch(
-          `${API_URL}/${product._id}`,
-          {
-            method: "DELETE",
-          }
-        );
+      const response = await fetch(
+        `${API_URL}/${product._id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      const data =
-        await response.json();
+      const contentType =
+        response.headers.get("content-type") || "";
+
+      let data = {};
+
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      }
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
+          data?.message ||
             "Failed to delete product."
         );
       }
 
-      setProducts(
-        (previousProducts) =>
-          previousProducts.filter(
-            (item) =>
-              item._id !==
-              product._id
-          )
+      setProducts((previousProducts) =>
+        previousProducts.filter(
+          (item) =>
+            item._id !== product._id
+        )
       );
 
       setSuccess(
@@ -361,15 +429,14 @@ export default function AdminProductManager() {
       setTimeout(() => {
         setSuccess("");
       }, 3000);
-
-    } catch (error) {
+    } catch (err) {
       console.error(
         "PRODUCT DELETE ERROR:",
-        error
+        err
       );
 
       setError(
-        error.message ||
+        err?.message ||
           "Product delete nahi ho saka."
       );
     }
@@ -384,12 +451,13 @@ export default function AdminProductManager() {
 
       <div className="mx-auto max-w-7xl">
 
-        {/* HEADER */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
 
           <div>
-
             <p className="mb-3 text-xs uppercase tracking-[4px] text-[#8B6914]">
               Store Management
             </p>
@@ -402,7 +470,6 @@ export default function AdminProductManager() {
               Add, edit, update prices and manage
               your crochet products.
             </p>
-
           </div>
 
           <a
@@ -414,7 +481,9 @@ export default function AdminProductManager() {
 
         </div>
 
-        {/* SUCCESS */}
+        {/* =================================================
+            SUCCESS MESSAGE
+        ================================================= */}
 
         {success && (
           <div className="mb-6 rounded-2xl bg-green-100 px-5 py-4 text-sm font-medium text-green-700">
@@ -422,7 +491,9 @@ export default function AdminProductManager() {
           </div>
         )}
 
-        {/* ERROR */}
+        {/* =================================================
+            ERROR MESSAGE
+        ================================================= */}
 
         {error && (
           <div className="mb-6 rounded-2xl bg-red-100 px-5 py-4 text-sm font-medium text-red-700">
@@ -439,7 +510,6 @@ export default function AdminProductManager() {
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
             <div>
-
               <p className="text-xs uppercase tracking-[3px] text-[#8B6914]">
                 Product Details
               </p>
@@ -449,7 +519,6 @@ export default function AdminProductManager() {
                   ? "Edit Product"
                   : "Add New Product"}
               </h2>
-
             </div>
 
             {editingProduct && (
@@ -472,7 +541,6 @@ export default function AdminProductManager() {
             {/* PRODUCT NAME */}
 
             <div>
-
               <label className="mb-2 block text-sm font-medium">
                 Product Name *
               </label>
@@ -485,13 +553,11 @@ export default function AdminProductManager() {
                 placeholder="e.g. Tulip Crochet Keychain"
                 className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017]"
               />
-
             </div>
 
             {/* PRICE */}
 
             <div>
-
               <label className="mb-2 block text-sm font-medium">
                 Price (Rs.) *
               </label>
@@ -500,18 +566,17 @@ export default function AdminProductManager() {
                 type="number"
                 name="price"
                 min="0"
+                step="1"
                 value={form.price}
                 onChange={handleChange}
                 placeholder="e.g. 600"
                 className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017]"
               />
-
             </div>
 
             {/* CATEGORY */}
 
             <div>
-
               <label className="mb-2 block text-sm font-medium">
                 Category
               </label>
@@ -524,13 +589,11 @@ export default function AdminProductManager() {
                 placeholder="e.g. Keychains"
                 className="w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017]"
               />
-
             </div>
 
             {/* IMAGE */}
 
             <div>
-
               <label className="mb-2 block text-sm font-medium">
                 Product Image
               </label>
@@ -548,7 +611,6 @@ export default function AdminProductManager() {
                   to change the current image.
                 </p>
               )}
-
             </div>
 
             {/* DESCRIPTION */}
@@ -563,7 +625,7 @@ export default function AdminProductManager() {
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                rows="4"
+                rows={4}
                 placeholder="Write something about this product..."
                 className="w-full resize-none rounded-2xl border border-gray-200 px-5 py-4 outline-none transition focus:border-[#D4A017]"
               />
@@ -583,12 +645,16 @@ export default function AdminProductManager() {
                   src={imagePreview}
                   alt="Product Preview"
                   className="h-52 w-52 rounded-3xl object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      "/images/placeholder.png";
+                  }}
                 />
 
               </div>
             )}
 
-            {/* BUTTON */}
+            {/* SUBMIT BUTTON */}
 
             <div className="lg:col-span-2">
 
@@ -616,10 +682,9 @@ export default function AdminProductManager() {
 
         <section className="rounded-[30px] bg-white p-6 shadow-sm md:p-8">
 
-          <div className="mb-7 flex items-center justify-between">
+          <div className="mb-7 flex items-center justify-between gap-4">
 
             <div>
-
               <p className="text-xs uppercase tracking-[3px] text-[#8B6914]">
                 Your Collection
               </p>
@@ -627,17 +692,20 @@ export default function AdminProductManager() {
               <h2 className="mt-2 text-2xl font-bold">
                 All Products
               </h2>
-
             </div>
 
             <button
+              type="button"
               onClick={fetchProducts}
-              className="rounded-full border border-gray-200 px-5 py-2.5 text-sm transition hover:bg-black hover:text-white"
+              disabled={loading}
+              className="rounded-full border border-gray-200 px-5 py-2.5 text-sm transition hover:bg-black hover:text-white disabled:opacity-50"
             >
               ↻ Refresh
             </button>
 
           </div>
+
+          {/* LOADING */}
 
           {loading && (
             <div className="py-16 text-center text-gray-500">
@@ -645,7 +713,41 @@ export default function AdminProductManager() {
             </div>
           )}
 
+          {/* ERROR + NO PRODUCTS */}
+
           {!loading &&
+            error &&
+            products.length === 0 && (
+              <div className="py-16 text-center">
+
+                <div className="text-4xl">
+                  ⚠️
+                </div>
+
+                <h3 className="mt-4 text-xl font-bold">
+                  Unable to load products
+                </h3>
+
+                <p className="mt-2 text-sm text-gray-500">
+                  Please check the API connection
+                  and try again.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={fetchProducts}
+                  className="mt-5 rounded-full bg-black px-6 py-3 text-sm font-medium text-white"
+                >
+                  Try Again
+                </button>
+
+              </div>
+            )}
+
+          {/* NO PRODUCTS */}
+
+          {!loading &&
+            !error &&
             products.length === 0 && (
               <div className="py-16 text-center">
 
@@ -664,88 +766,100 @@ export default function AdminProductManager() {
               </div>
             )}
 
+          {/* PRODUCTS */}
+
           {!loading &&
             products.length > 0 && (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-                {products.map(
-                  (product) => (
-                    <div
-                      key={product._id}
-                      className="overflow-hidden rounded-[25px] border border-gray-100 bg-[#F7F1E3]/40"
-                    >
+                {products.map((product) => (
+                  <div
+                    key={
+                      product._id ||
+                      product.id ||
+                      product.name
+                    }
+                    className="overflow-hidden rounded-[25px] border border-gray-100 bg-[#F7F1E3]/40"
+                  >
 
-                      {/* IMAGE */}
+                    {/* IMAGE */}
 
-                      <div className="relative">
+                    <div className="relative">
 
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-64 w-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "/images/placeholder.png";
-                          }}
-                        />
+                      <img
+                        src={getImageUrl(
+                          product.image
+                        )}
+                        alt={
+                          product.name ||
+                          "Product"
+                        }
+                        className="h-64 w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            "/images/placeholder.png";
+                        }}
+                      />
 
-                        <div className="absolute right-4 top-4 rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm">
-                          {product.category ||
-                            "Crochet"}
-                        </div>
-
+                      <div className="absolute right-4 top-4 rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm">
+                        {product.category ||
+                          "Crochet"}
                       </div>
 
-                      {/* DETAILS */}
+                    </div>
 
-                      <div className="p-5">
+                    {/* DETAILS */}
 
-                        <h3 className="text-lg font-bold">
-                          {product.name}
-                        </h3>
+                    <div className="p-5">
 
-                        <p className="mt-2 text-xl font-bold text-[#8B6914]">
-                          Rs.{" "}
-                          {Number(
-                            product.price || 0
-                          ).toLocaleString()}
+                      <h3 className="text-lg font-bold">
+                        {product.name ||
+                          "Unnamed Product"}
+                      </h3>
+
+                      <p className="mt-2 text-xl font-bold text-[#8B6914]">
+                        Rs.{" "}
+                        {Number(
+                          product.price || 0
+                        ).toLocaleString()}
+                      </p>
+
+                      {product.description && (
+                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-500">
+                          {product.description}
                         </p>
+                      )}
 
-                        {product.description && (
-                          <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-500">
-                            {product.description}
-                          </p>
-                        )}
+                      {/* ACTIONS */}
 
-                        {/* ACTIONS */}
+                      <div className="mt-5 flex gap-3">
 
-                        <div className="mt-5 flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleEdit(product)
+                          }
+                          className="flex-1 rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:bg-[#D4A017] hover:text-black"
+                        >
+                          Edit
+                        </button>
 
-                          <button
-                            onClick={() =>
-                              handleEdit(product)
-                            }
-                            className="flex-1 rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:bg-[#D4A017] hover:text-black"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              handleDelete(product)
-                            }
-                            className="rounded-full border border-red-200 px-5 py-3 text-sm font-medium text-red-500 transition hover:bg-red-500 hover:text-white"
-                          >
-                            Delete
-                          </button>
-
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDelete(product)
+                          }
+                          className="rounded-full border border-red-200 px-5 py-3 text-sm font-medium text-red-500 transition hover:bg-red-500 hover:text-white"
+                        >
+                          Delete
+                        </button>
 
                       </div>
 
                     </div>
-                  )
-                )}
+
+                  </div>
+                ))}
 
               </div>
             )}
