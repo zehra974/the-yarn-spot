@@ -6,7 +6,7 @@ import React, {
 import { useCart } from "../Context/CartContext";
 
 const API_URL =
-  "http://localhost:8000/api/orders";
+  "https://the-yarn-spot.vercel.app/api/orders";
 
 // =====================================================
 // PAYMENT SETTINGS

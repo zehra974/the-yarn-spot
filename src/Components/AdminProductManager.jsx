@@ -4,7 +4,7 @@ import React, {
 } from "react";
 
 const API_URL =
-  "http://localhost:8000/api/products";
+"https://the-yarn-spot.vercel.app/api/products";
 
 const initialForm = {
   name: "",

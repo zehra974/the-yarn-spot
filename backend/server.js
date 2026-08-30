@@ -13,26 +13,25 @@ const adminRoutes = require("./Routes/AdminRoutes");
 const app = express();
 
 // =====================================================
-// CHECK ENV VARIABLES
+// MIDDLEWARE
 // =====================================================
 
-console.log(
-  "EMAIL_USER exists:",
-  !!process.env.EMAIL_USER
+app.use(
+  cors({
+    origin: "*",
+  })
 );
 
-console.log(
-  "EMAIL_PASS exists:",
-  !!process.env.EMAIL_PASS
-);
+app.use(express.json());
 
-console.log(
-  "MONGO_URI exists:",
-  !!process.env.MONGO_URI
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
 );
 
 // =====================================================
-// CREATE UPLOADS FOLDER
+// UPLOADS FOLDER
 // =====================================================
 
 const uploadsFolder = path.join(
@@ -45,20 +44,6 @@ if (!fs.existsSync(uploadsFolder)) {
     recursive: true,
   });
 }
-
-// =====================================================
-// MIDDLEWARE
-// =====================================================
-
-app.use(cors());
-
-app.use(express.json());
-
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
 
 // =====================================================
 // SERVE UPLOADED IMAGES
@@ -83,20 +68,20 @@ app.use(
   orderRoutes
 );
 
+app.use(
+  "/api/admin",
+  adminRoutes
+);
+
 // =====================================================
 // TEST ROUTE
 // =====================================================
 
 app.get("/", (req, res) => {
-  res.json({
-    message:
-      "The Yarn Spot Backend is running!",
+  res.status(200).json({
+    message: "The Yarn Spot Backend is running!",
   });
 });
-app.use(
-  "/api/admin",
-  adminRoutes
-);
 
 // =====================================================
 // 404 ROUTE
@@ -105,6 +90,7 @@ app.use(
 app.use((req, res) => {
   res.status(404).json({
     message: "Route not found",
+    path: req.originalUrl,
   });
 });
 
@@ -112,66 +98,60 @@ app.use((req, res) => {
 // ERROR HANDLER
 // =====================================================
 
-app.use(
-  (error, req, res, next) => {
-    console.error(
-      "SERVER ERROR:",
-      error
-    );
+app.use((error, req, res, next) => {
+  console.error("SERVER ERROR:", error);
 
-    res.status(500).json({
-      message:
-        error.message ||
-        "Something went wrong",
-    });
-  }
-);
-
-// =====================================================
-// CHECK REQUIRED ENV VARIABLES
-// =====================================================
-
-if (!process.env.MONGO_URI) {
-  console.error(
-    "ERROR: MONGO_URI is missing from .env"
-  );
-}
-
-if (!process.env.EMAIL_USER) {
-  console.error(
-    "ERROR: EMAIL_USER is missing from .env"
-  );
-}
-
-if (!process.env.EMAIL_PASS) {
-  console.error(
-    "ERROR: EMAIL_PASS is missing from .env"
-  );
-}
+  res.status(500).json({
+    message:
+      error.message ||
+      "Something went wrong",
+  });
+});
 
 // =====================================================
 // MONGODB CONNECTION
 // =====================================================
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log(
-      "MongoDB connected successfully"
-    );
+let isConnected = false;
 
-    const PORT =
-      process.env.PORT || 8000;
+async function connectDB() {
+  if (isConnected) {
+    return;
+  }
 
-    app.listen(PORT, "0.0.0.0", () =>  {
-      console.log(
-        `Server running on port ${PORT}`
-      );
-    });
-  })
-  .catch((error) => {
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is missing");
+  }
+
+  await mongoose.connect(
+    process.env.MONGO_URI
+  );
+
+  isConnected = true;
+
+  console.log(
+    "MongoDB connected successfully"
+  );
+}
+
+// =====================================================
+// VERCEL SERVERLESS HANDLER
+// =====================================================
+
+module.exports = async (req, res) => {
+  try {
+    await connectDB();
+
+    return app(req, res);
+  } catch (error) {
     console.error(
-      "MongoDB connection error:",
+      "DATABASE / SERVER ERROR:",
       error
     );
-  });
+
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};``

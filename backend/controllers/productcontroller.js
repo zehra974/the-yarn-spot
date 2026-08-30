@@ -12,10 +12,7 @@ const getProducts = async (req, res) => {
 
     res.status(200).json(products);
   } catch (error) {
-    console.error(
-      "GET PRODUCTS ERROR:",
-      error
-    );
+    console.error("GET PRODUCTS ERROR:", error);
 
     res.status(500).json({
       message: "Failed to get products",
@@ -28,13 +25,9 @@ const getProducts = async (req, res) => {
 // GET SINGLE PRODUCT
 // =====================================================
 
-const getProductById = async (
-  req,
-  res
-) => {
+const getProductById = async (req, res) => {
   try {
-    const product =
-      await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({
@@ -44,10 +37,7 @@ const getProductById = async (
 
     res.status(200).json(product);
   } catch (error) {
-    console.error(
-      "GET PRODUCT ERROR:",
-      error
-    );
+    console.error("GET PRODUCT ERROR:", error);
 
     res.status(500).json({
       message: "Failed to get product",
@@ -60,10 +50,7 @@ const getProductById = async (
 // CREATE PRODUCT
 // =====================================================
 
-const createProduct = async (
-  req,
-  res
-) => {
+const createProduct = async (req, res) => {
   try {
     const {
       name,
@@ -76,8 +63,7 @@ const createProduct = async (
 
     if (!name || !price) {
       return res.status(400).json({
-        message:
-          "Product name and price are required.",
+        message: "Product name and price are required.",
       });
     }
 
@@ -89,7 +75,7 @@ const createProduct = async (
 
     if (req.file) {
       image =
-        `http://localhost:8000/uploads/${req.file.filename}`;
+        `https://https://the-yarn-spot.vercel.app/uploads/${req.file.filename}`;
     }
 
     // IMAGE URL IF PROVIDED
@@ -100,31 +86,30 @@ const createProduct = async (
 
     if (!image) {
       return res.status(400).json({
-        message:
-          "Product image is required.",
+        message: "Product image is required.",
       });
     }
 
     // CREATE PRODUCT
 
-    const product =
-      await Product.create({
-        name: name.trim(),
+    const product = await Product.create({
+      name: name.trim(),
 
-        price: Number(price),
+      price: Number(price),
 
-        image,
+      image,
 
-        description:
-          description?.trim() || "",
+      description:
+        description?.trim() || "",
 
-        category:
-          category?.trim() || "Crochet",
-      });
+      category:
+        category?.trim() || "Crochet",
+    });
 
     res.status(201).json({
       message:
         "Product created successfully",
+
       product,
     });
   } catch (error) {
@@ -136,6 +121,7 @@ const createProduct = async (
     res.status(500).json({
       message:
         "Failed to create product",
+
       error: error.message,
     });
   }
@@ -145,10 +131,7 @@ const createProduct = async (
 // UPDATE PRODUCT
 // =====================================================
 
-const updateProduct = async (
-  req,
-  res
-) => {
+const updateProduct = async (req, res) => {
   try {
     const {
       name,
@@ -168,8 +151,7 @@ const updateProduct = async (
     // PRICE
 
     if (price !== undefined) {
-      updateData.price =
-        Number(price);
+      updateData.price = Number(price);
     }
 
     // DESCRIPTION
@@ -190,7 +172,7 @@ const updateProduct = async (
 
     if (req.file) {
       updateData.image =
-        `http://localhost:8000/uploads/${req.file.filename}`;
+        `https://the-yarn-spot.vercel.app/uploads/${req.file.filename}`;
     }
 
     // IMAGE URL
@@ -217,13 +199,15 @@ const updateProduct = async (
 
     if (!product) {
       return res.status(404).json({
-        message: "Product not found",
+        message:
+          "Product not found",
       });
     }
 
     res.status(200).json({
       message:
         "Product updated successfully",
+
       product,
     });
   } catch (error) {
@@ -235,6 +219,7 @@ const updateProduct = async (
     res.status(500).json({
       message:
         "Failed to update product",
+
       error: error.message,
     });
   }
@@ -244,10 +229,7 @@ const updateProduct = async (
 // DELETE PRODUCT
 // =====================================================
 
-const deleteProduct = async (
-  req,
-  res
-) => {
+const deleteProduct = async (req, res) => {
   try {
     const product =
       await Product.findByIdAndDelete(
@@ -256,7 +238,8 @@ const deleteProduct = async (
 
     if (!product) {
       return res.status(404).json({
-        message: "Product not found",
+        message:
+          "Product not found",
       });
     }
 
@@ -273,10 +256,15 @@ const deleteProduct = async (
     res.status(500).json({
       message:
         "Failed to delete product",
+
       error: error.message,
     });
   }
 };
+
+// =====================================================
+// EXPORTS
+// =====================================================
 
 module.exports = {
   getProducts,

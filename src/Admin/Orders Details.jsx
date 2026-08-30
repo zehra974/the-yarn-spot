@@ -1,12 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useParams,
+  Link,
+} from "react-router-dom";
+
+const API_URL =
+  "https://the-yarn-spot.vercel.app/api/orders";
 
 export default function OrderDetails() {
   const { id } = useParams();
 
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [order, setOrder] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -14,29 +29,48 @@ export default function OrderDetails() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `http://localhost:8000/api/orders/${id}`
-        );
+        const response =
+          await fetch(
+            `${API_URL}/${id}`
+          );
+
+        const data =
+          await response.json();
 
         if (!response.ok) {
-          throw new Error("Order not found");
+          throw new Error(
+            data.message ||
+              "Order not found"
+          );
         }
 
-        const data = await response.json();
+        const fetchedOrder =
+          data.order || data;
 
-        setOrder(data);
+        setOrder(fetchedOrder);
+
       } catch (err) {
-        console.error(err);
-        setError("Order details load nahi ho sake.");
+        console.error(
+          "Order details error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Order details load nahi ho sake."
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrder();
+    if (id) {
+      fetchOrder();
+    }
   }, [id]);
 
-  // Loading
+  // LOADING
+
   if (loading) {
     return (
       <div className="p-8">
@@ -47,196 +81,279 @@ export default function OrderDetails() {
     );
   }
 
-  // Error
+  // ERROR
+
   if (error) {
     return (
       <div className="p-8">
+
         <p className="text-red-500">
           {error}
         </p>
 
         <Link
           to="/admin/orders"
-          className="inline-block mt-4 px-5 py-2 rounded-full bg-black text-white hover:bg-[#D4A017] hover:text-black transition"
+          className="mt-4 inline-block rounded-full bg-black px-5 py-2 text-white transition hover:bg-[#D4A017] hover:text-black"
         >
-          ← Back to Orders
+          Back to Orders
         </Link>
+
       </div>
     );
   }
 
-  // No order
+  // NO ORDER
+
   if (!order) {
     return (
       <div className="p-8">
+
         <p className="text-gray-500">
           Order not found.
         </p>
 
         <Link
           to="/admin/orders"
-          className="inline-block mt-4 px-5 py-2 rounded-full bg-black text-white hover:bg-[#D4A017] hover:text-black transition"
+          className="mt-4 inline-block rounded-full bg-black px-5 py-2 text-white transition hover:bg-[#D4A017] hover:text-black"
         >
-          ← Back to Orders
+          Back to Orders
         </Link>
+
       </div>
     );
   }
+
+  const customer =
+    order.customer || {};
+
+  const items =
+    Array.isArray(order.items)
+      ? order.items
+      : [];
 
   return (
     <div className="p-6 md:p-10">
 
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
 
         <div>
+
           <p className="text-sm uppercase tracking-[3px] text-[#8B6914]">
             Admin Dashboard
           </p>
 
-          <h1 className="text-4xl font-bold mt-2">
+          <h1 className="mt-2 text-4xl font-bold">
             Order Details
           </h1>
+
         </div>
 
         <Link
           to="/admin/orders"
-          className="px-5 py-2 rounded-full bg-black text-white hover:bg-[#D4A017] hover:text-black transition"
+          className="rounded-full bg-black px-5 py-2 text-center text-white transition hover:bg-[#D4A017] hover:text-black"
         >
-          ← Back
+          Back to Orders
         </Link>
 
       </div>
 
+      {/* ORDER INFORMATION */}
 
-      {/* ORDER INFO */}
-      <div className="bg-white rounded-2xl shadow-sm border p-6">
+      <div className="rounded-2xl border bg-white p-6 shadow-sm md:p-8">
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
 
           {/* ORDER ID */}
+
           <div>
+
             <p className="text-sm text-gray-400">
               Order ID
             </p>
 
-            <p className="font-semibold mt-1 break-all">
+            <p className="mt-1 break-all font-semibold">
               #{order._id}
             </p>
+
           </div>
 
-
           {/* STATUS */}
+
           <div>
+
             <p className="text-sm text-gray-400">
               Status
             </p>
 
-            <span className="inline-block mt-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
-              {order.status || "Pending"}
+            <span className="mt-1 inline-block rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+              {order.status ||
+                "Pending Payment"}
             </span>
+
           </div>
 
         </div>
 
-
         {/* CUSTOMER INFORMATION */}
-        <div className="border-t mt-8 pt-6">
 
-          <h2 className="text-xl font-bold mb-5">
+        <div className="mt-8 border-t pt-6">
+
+          <h2 className="mb-5 text-xl font-bold">
             Customer Information
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid gap-5 md:grid-cols-2">
 
-            {/* NAME */}
             <div>
+
               <p className="text-sm text-gray-400">
                 Name
               </p>
 
-              <p className="font-medium mt-1">
-                {order.customerName || "N/A"}
+              <p className="mt-1 font-medium">
+                {customer.fullName ||
+                  "N/A"}
               </p>
+
             </div>
 
-
-            {/* EMAIL */}
             <div>
+
               <p className="text-sm text-gray-400">
                 Email
               </p>
 
-              <p className="font-medium mt-1">
-                {order.email || "N/A"}
+              <p className="mt-1 break-all font-medium">
+                {customer.email ||
+                  "N/A"}
               </p>
+
             </div>
 
-
-            {/* PHONE */}
             <div>
+
               <p className="text-sm text-gray-400">
                 Phone
               </p>
 
-              <p className="font-medium mt-1">
-                {order.phone || "N/A"}
+              <p className="mt-1 font-medium">
+                {customer.phone ||
+                  "N/A"}
               </p>
+
             </div>
+
+            <div>
+
+              <p className="text-sm text-gray-400">
+                City
+              </p>
+
+              <p className="mt-1 font-medium">
+                {customer.city ||
+                  "N/A"}
+              </p>
+
+            </div>
+
+            <div className="md:col-span-2">
+
+              <p className="text-sm text-gray-400">
+                Delivery Address
+              </p>
+
+              <p className="mt-1 font-medium">
+                {customer.address ||
+                  "N/A"}
+              </p>
+
+            </div>
+
+            {customer.notes && (
+              <div className="md:col-span-2">
+
+                <p className="text-sm text-gray-400">
+                  Order Notes
+                </p>
+
+                <p className="mt-1 font-medium">
+                  {customer.notes}
+                </p>
+
+              </div>
+            )}
 
           </div>
 
         </div>
 
+        {/* ORDERED PRODUCTS */}
 
-        {/* PRODUCTS */}
-        <div className="border-t mt-8 pt-6">
+        <div className="mt-8 border-t pt-6">
 
-          <h2 className="text-xl font-bold mb-5">
+          <h2 className="mb-5 text-xl font-bold">
             Ordered Products
           </h2>
 
-          {order.products && order.products.length > 0 ? (
+          {items.length > 0 ? (
 
             <div className="space-y-4">
 
-              {order.products.map((item, index) => (
+              {items.map(
+                (item, index) => {
 
-                <div
-                  key={item._id || index}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gray-50 rounded-xl p-4"
-                >
+                  const quantity =
+                    Number(
+                      item.quantity || 1
+                    );
 
-                  {/* PRODUCT INFO */}
-                  <div>
+                  const price =
+                    Number(
+                      item.price || 0
+                    );
 
-                    <p className="font-semibold">
-                      {item.name || "Unnamed Product"}
-                    </p>
+                  const itemTotal =
+                    price * quantity;
 
-                    <p className="text-sm text-gray-500">
-                      Quantity: {item.quantity || 1}
-                    </p>
+                  return (
+                    <div
+                      key={
+                        item._id ||
+                        index
+                      }
+                      className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
 
-                    <p className="text-sm text-gray-500">
-                      Price: Rs.{" "}
-                      {Number(item.price || 0).toLocaleString()}
-                    </p>
+                      <div>
 
-                  </div>
+                        <p className="font-semibold">
+                          {item.name ||
+                            "Unnamed Product"}
+                        </p>
 
+                        <p className="mt-1 text-sm text-gray-500">
+                          Quantity:{" "}
+                          {quantity}
+                        </p>
 
-                  {/* PRODUCT TOTAL */}
-                  <p className="font-semibold">
-                    Rs.{" "}
-                    {Number(
-                      (item.price || 0) * (item.quantity || 1)
-                    ).toLocaleString()}
-                  </p>
+                        <p className="text-sm text-gray-500">
+                          Price: Rs.{" "}
+                          {price.toLocaleString()}
+                        </p>
 
-                </div>
+                      </div>
 
-              ))}
+                      <p className="font-semibold">
+                        Rs.{" "}
+                        {itemTotal.toLocaleString()}
+                      </p>
+
+                    </div>
+                  );
+                }
+              )}
 
             </div>
 
@@ -250,9 +367,81 @@ export default function OrderDetails() {
 
         </div>
 
+        {/* PAYMENT INFORMATION */}
+
+        <div className="mt-8 border-t pt-6">
+
+          <h2 className="mb-5 text-xl font-bold">
+            Payment Information
+          </h2>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div>
+
+              <p className="text-sm text-gray-400">
+                Payment Type
+              </p>
+
+              <p className="mt-1 font-semibold">
+                {order.paymentType ||
+                  "Advance"}
+              </p>
+
+            </div>
+
+            <div>
+
+              <p className="text-sm text-gray-400">
+                Payment Method
+              </p>
+
+              <p className="mt-1 font-semibold">
+                {order.paymentMethod ||
+                  "N/A"}
+              </p>
+
+            </div>
+
+            <div>
+
+              <p className="text-sm text-gray-400">
+                Paid Amount
+              </p>
+
+              <p className="mt-1 font-semibold text-[#8B6914]">
+                Rs.{" "}
+                {Number(
+                  order.paidAmount ||
+                    0
+                ).toLocaleString()}
+              </p>
+
+            </div>
+
+            <div>
+
+              <p className="text-sm text-gray-400">
+                Remaining Amount
+              </p>
+
+              <p className="mt-1 font-semibold">
+                Rs.{" "}
+                {Number(
+                  order.remainingAmount ||
+                    0
+                ).toLocaleString()}
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
 
         {/* TOTAL */}
-        <div className="border-t mt-8 pt-6 flex items-center justify-between">
+
+        <div className="mt-8 flex items-center justify-between border-t pt-6">
 
           <p className="text-xl font-bold">
             Total

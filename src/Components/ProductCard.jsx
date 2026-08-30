@@ -1,21 +1,19 @@
 import React from "react";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL =
+  "https://the-yarn-spot.vercel.app";
 
 export default function ProductCard({
   product,
   onAddToCart,
 }) {
-  // =====================================================
   // IMAGE URL
-  // =====================================================
 
   const getImageUrl = (image) => {
     if (!image) {
       return "/images/placeholder.png";
     }
 
-    // Agar image already complete URL hai
     if (
       image.startsWith("http://") ||
       image.startsWith("https://")
@@ -23,40 +21,37 @@ export default function ProductCard({
       return image;
     }
 
-    // Agar Admin Manager se uploaded image hai
     if (image.startsWith("/uploads/")) {
       return `${BACKEND_URL}${image}`;
     }
 
-    // Agar image "uploads/filename.jpg" format mein hai
     if (image.startsWith("uploads/")) {
       return `${BACKEND_URL}/${image}`;
     }
 
-    // Purani frontend images
     if (image.startsWith("/")) {
       return image;
     }
 
-    // Example:
-    // "images/tulip.jpeg"
     return `/${image}`;
   };
 
-  const imageUrl = getImageUrl(product.image);
+  const imageUrl =
+    getImageUrl(product?.image);
 
   return (
     <div className="group">
 
-      {/* =====================================================
-          PRODUCT IMAGE
-      ===================================================== */}
+      {/* PRODUCT IMAGE */}
 
       <div className="relative overflow-hidden rounded-[25px] bg-[#F7F1E3]">
 
         <img
           src={imageUrl}
-          alt={product.name || "Crochet Product"}
+          alt={
+            product?.name ||
+            "Crochet Product"
+          }
           className="h-[380px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
           onError={(e) => {
             e.currentTarget.onerror = null;
@@ -65,13 +60,13 @@ export default function ProductCard({
           }}
         />
 
-        {/* =================================================
-            ADD TO CART
-        ================================================= */}
+        {/* ADD TO CART */}
 
         <button
           type="button"
-          onClick={() => onAddToCart(product)}
+          onClick={() =>
+            onAddToCart(product)
+          }
           className="
             absolute
             bottom-5
@@ -94,26 +89,28 @@ export default function ProductCard({
             hover:bg-[#D4A017]
             hover:text-black
           "
-          aria-label={`Add ${product.name} to cart`}
+          aria-label={`Add ${
+            product?.name ||
+            "product"
+          } to cart`}
         >
           +
         </button>
 
       </div>
 
-      {/* =====================================================
-          PRODUCT DETAILS
-      ===================================================== */}
+      {/* PRODUCT DETAILS */}
 
       <div className="mt-5">
 
         <h3 className="text-lg font-semibold">
-          {product.name}
+          {product?.name ||
+            "Unnamed Product"}
         </h3>
 
         {/* CATEGORY */}
 
-        {product.category && (
+        {product?.category && (
           <p className="mt-1 text-xs uppercase tracking-[2px] text-gray-400">
             {product.category}
           </p>
@@ -123,12 +120,15 @@ export default function ProductCard({
 
         <p className="mt-2 font-medium text-[#8B6914]">
           Rs.{" "}
-          {Number(product.price || 0).toLocaleString()}
+          {Number(
+            product?.price || 0
+          ).toLocaleString()}
         </p>
 
         {/* STOCK */}
 
-        {product.stock !== undefined && (
+        {product?.stock !==
+          undefined && (
           <p
             className={`mt-1 text-xs ${
               Number(product.stock) > 0
@@ -136,7 +136,8 @@ export default function ProductCard({
                 : "text-red-500"
             }`}
           >
-            {Number(product.stock) > 0
+            {Number(product.stock) >
+            0
               ? `${product.stock} in stock`
               : "Out of stock"}
           </p>
