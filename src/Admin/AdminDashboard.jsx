@@ -1,4 +1,3 @@
-```jsx
 import React, { useEffect, useMemo, useState } from "react";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`;
@@ -503,7 +502,7 @@ export default function AdminDashboard() {
 
           <div className="flex flex-wrap gap-3">
 
-            {/* CORRECT MANAGE PRODUCTS BUTTON */}
+            {/* MANAGE PRODUCTS BUTTON */}
 
             <a
               href="/admin/products"
@@ -1441,4 +1440,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-```
