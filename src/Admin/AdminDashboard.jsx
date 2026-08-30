@@ -1,3 +1,4 @@
+```jsx
 import React, { useEffect, useMemo, useState } from "react";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`;
@@ -344,9 +345,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F1E3] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#F7F1E3]">
         <div className="text-center">
-          <div className="mx-auto mb-5 h-12 w-12 rounded-full border-4 border-black/10 border-t-[#D4A017] animate-spin" />
+          <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-black/10 border-t-[#D4A017]" />
 
           <p className="text-sm text-gray-500">
             Loading your dashboard...
@@ -424,23 +425,30 @@ export default function AdminDashboard() {
               Admin
             </span>
 
-            {/* MANAGE PRODUCTS */}
+            {/* CORRECT ROUTE */}
 
             <a
-              href="/admin-products"
+              href="/admin/products"
               className="rounded-full bg-[#D4A017] px-4 py-2 font-semibold text-black transition hover:bg-white"
             >
               Manage Products
             </a>
 
+            <button
+              onClick={handleLogout}
+              className="rounded-full border border-white/20 px-4 py-2 text-gray-300 transition hover:bg-white hover:text-black"
+            >
+              Logout
+            </button>
+
           </div>
 
-          {/* MOBILE MANAGE PRODUCTS */}
+          {/* MOBILE */}
 
           <div className="flex items-center gap-2">
 
             <a
-              href="/admin-products"
+              href="/admin/products"
               className="rounded-full bg-[#D4A017] px-4 py-2 text-xs font-semibold text-black transition hover:bg-white sm:text-sm lg:hidden"
             >
               Products
@@ -472,9 +480,7 @@ export default function AdminDashboard() {
 
       <main className="mx-auto max-w-[1500px] px-5 py-8 md:px-10 md:py-12">
 
-        {/* ===================================================
-            HEADER
-        =================================================== */}
+        {/* HEADER */}
 
         <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
 
@@ -497,16 +503,14 @@ export default function AdminDashboard() {
 
           <div className="flex flex-wrap gap-3">
 
-            {/* MANAGE PRODUCTS BUTTON */}
+            {/* CORRECT MANAGE PRODUCTS BUTTON */}
 
             <a
-              href="/admin-products"
+              href="/admin/products"
               className="rounded-2xl bg-black px-5 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#D4A017] hover:text-black"
             >
               🧶 Manage Products
             </a>
-
-            {/* TODAY */}
 
             <div className="rounded-2xl border border-black/5 bg-white px-5 py-4 shadow-sm">
 
@@ -531,13 +535,9 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* ===================================================
-            STATS
-        =================================================== */}
+        {/* STATS */}
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-          {/* TOTAL */}
 
           <div className="group rounded-3xl bg-black p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1">
 
@@ -563,8 +563,6 @@ export default function AdminDashboard() {
 
           </div>
 
-          {/* PENDING */}
-
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -589,8 +587,6 @@ export default function AdminDashboard() {
 
           </div>
 
-          {/* DELIVERED */}
-
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -614,8 +610,6 @@ export default function AdminDashboard() {
             </p>
 
           </div>
-
-          {/* REVENUE */}
 
           <div className="rounded-3xl border border-[#D4A017]/30 bg-[#D4A017] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
@@ -643,9 +637,7 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* ===================================================
-            SECONDARY STATS
-        =================================================== */}
+        {/* SECONDARY STATS */}
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
 
@@ -691,9 +683,7 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* ===================================================
-            ORDERS
-        =================================================== */}
+        {/* ORDERS */}
 
         <section className="mt-10 rounded-[30px] bg-white p-5 shadow-sm md:p-7">
 
@@ -807,9 +797,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* =================================================
-              DESKTOP TABLE
-          ================================================= */}
+          {/* DESKTOP TABLE */}
 
           {filteredOrders.length > 0 && (
             <div className="mt-5 hidden overflow-x-auto lg:block">
@@ -969,9 +957,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* =================================================
-              MOBILE CARDS
-          ================================================= */}
+          {/* MOBILE CARDS */}
 
           {filteredOrders.length > 0 && (
             <div className="mt-5 space-y-4 lg:hidden">
@@ -1455,4 +1441,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
+```
