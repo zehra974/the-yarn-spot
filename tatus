@@ -1,0 +1,130 @@
+[1mdiff --git a/api/index.js b/api/index.js[m
+[1mindex f1583fa..abc0048 100644[m
+[1m--- a/api/index.js[m
+[1m+++ b/api/index.js[m
+[36m@@ -6,3 +6,4 @@[m [mconst require = createRequire(import.meta.url);[m
+ const backend = require("../backend/server.js");[m
+ [m
+ export default backend;[m
+[41m+[m
+[1mdiff --git a/backend/server.js b/backend/server.js[m
+[1mindex 8c6ff27..88ca82d 100644[m
+[1m--- a/backend/server.js[m
+[1m+++ b/backend/server.js[m
+[36m@@ -12,10 +12,6 @@[m [mconst adminRoutes = require("./Routes/AdminRoutes");[m
+ [m
+ const app = express();[m
+ [m
+[31m-// =====================================================[m
+[31m-// MIDDLEWARE[m
+[31m-// =====================================================[m
+[31m-[m
+ app.use([m
+   cors({[m
+     origin: "*",[m
+[36m@@ -30,10 +26,6 @@[m [mapp.use([m
+   })[m
+ );[m
+ [m
+[31m-// =====================================================[m
+[31m-// UPLOADS FOLDER[m
+[31m-// =====================================================[m
+[31m-[m
+ const uploadsFolder = path.join([m
+   __dirname,[m
+   "uploads"[m
+[36m@@ -45,19 +37,11 @@[m [mif (!fs.existsSync(uploadsFolder)) {[m
+   });[m
+ }[m
+ [m
+[31m-// =====================================================[m
+[31m-// SERVE UPLOADED IMAGES[m
+[31m-// =====================================================[m
+[31m-[m
+ app.use([m
+   "/uploads",[m
+   express.static(uploadsFolder)[m
+ );[m
+ [m
+[31m-// =====================================================[m
+[31m-// API ROUTES[m
+[31m-// =====================================================[m
+[31m-[m
+ app.use([m
+   "/api/products",[m
+   productRoutes[m
+[36m@@ -73,20 +57,12 @@[m [mapp.use([m
+   adminRoutes[m
+ );[m
+ [m
+[31m-// =====================================================[m
+[31m-// TEST ROUTE[m
+[31m-// =====================================================[m
+[31m-[m
+ app.get("/", (req, res) => {[m
+   res.status(200).json({[m
+     message: "The Yarn Spot Backend is running!",[m
+   });[m
+ });[m
+ [m
+[31m-// =====================================================[m
+[31m-// 404[m
+[31m-// =====================================================[m
+[31m-[m
+ app.use((req, res) => {[m
+   res.status(404).json({[m
+     message: "Route not found",[m
+[36m@@ -94,10 +70,6 @@[m [mapp.use((req, res) => {[m
+   });[m
+ });[m
+ [m
+[31m-// =====================================================[m
+[31m-// ERROR HANDLER[m
+[31m-// =====================================================[m
+[31m-[m
+ app.use((error, req, res, next) => {[m
+   console.error("SERVER ERROR:", error);[m
+ [m
+[36m@@ -108,10 +80,6 @@[m [mapp.use((error, req, res, next) => {[m
+   });[m
+ });[m
+ [m
+[31m-// =====================================================[m
+[31m-// MONGODB CONNECTION[m
+[31m-// =====================================================[m
+[31m-[m
+ let isConnected = false;[m
+ [m
+ async function connectDB() {[m
+[36m@@ -134,10 +102,6 @@[m [masync function connectDB() {[m
+   );[m
+ }[m
+ [m
+[31m-// =====================================================[m
+[31m-// VERCEL SERVERLESS HANDLER[m
+[31m-// =====================================================[m
+[31m-[m
+ module.exports = async (req, res) => {[m
+   try {[m
+     await connectDB();[m
+[36m@@ -154,5 +118,4 @@[m [mmodule.exports = async (req, res) => {[m
+       error: error.message,[m
+     });[m
+   }[m
+[31m-};[m
+[31m-[m
+[32m+[m[32m};[m
+\ No newline at end of file[m
+[1mdiff --git a/backend/vercel.json b/backend/vercel.json[m
+[1mindex f3984b6..f86b2aa 100644[m
+[1m--- a/backend/vercel.json[m
+[1m+++ b/backend/vercel.json[m
+[36m@@ -8,7 +8,7 @@[m
+   ],[m
+   "routes": [[m
+     {[m
+[31m-      "src": "/(.*)",[m
+[32m+[m[32m      "src": "/api/(.*)",[m
+       "dest": "server.js"[m
+     }[m
+   ][m

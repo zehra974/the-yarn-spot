@@ -124,9 +124,7 @@ export default function AdminDashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to fetch orders"
-        );
+        throw new Error(data.message || "Failed to fetch orders");
       }
 
       setOrders(Array.isArray(data) ? data : []);
@@ -177,19 +175,16 @@ export default function AdminDashboard() {
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/${orderId}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: newStatus,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      });
 
       const data = await response.json();
 
@@ -216,10 +211,7 @@ export default function AdminDashboard() {
         )
       );
 
-      if (
-        selectedOrder &&
-        selectedOrder._id === orderId
-      ) {
+      if (selectedOrder && selectedOrder._id === orderId) {
         setSelectedOrder((previous) => ({
           ...previous,
           status: newStatus,
@@ -230,10 +222,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Status update error:", err);
 
-      showToast(
-        err.message || "Status update failed.",
-        "error"
-      );
+      showToast(err.message || "Status update failed.", "error");
     } finally {
       setUpdatingStatus(false);
     }
@@ -251,18 +240,10 @@ export default function AdminDashboard() {
 
       const matchesSearch =
         !searchValue ||
-        customer.fullName
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        customer.phone
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        customer.city
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        order._id
-          ?.toLowerCase()
-          .includes(searchValue);
+        customer.fullName?.toLowerCase().includes(searchValue) ||
+        customer.phone?.toLowerCase().includes(searchValue) ||
+        customer.city?.toLowerCase().includes(searchValue) ||
+        order._id?.toLowerCase().includes(searchValue);
 
       const matchesStatus =
         statusFilter === "All" ||
@@ -304,9 +285,7 @@ export default function AdminDashboard() {
     ).length;
 
     const revenue = orders
-      .filter(
-        (order) => order.status !== "Cancelled"
-      )
+      .filter((order) => order.status !== "Cancelled")
       .reduce(
         (total, order) =>
           total + Number(order.totalAmount || 0),
@@ -351,6 +330,15 @@ export default function AdminDashboard() {
   };
 
   // =========================================================
+  // LOGOUT
+  // =========================================================
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    window.location.replace("/admin-login");
+  };
+
+  // =========================================================
   // LOADING
   // =========================================================
 
@@ -375,7 +363,9 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#F7F1E3] text-[#171717]">
 
-      {/* TOAST */}
+      {/* =====================================================
+          TOAST
+      ===================================================== */}
 
       {toast.show && (
         <div
@@ -395,10 +385,15 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* NAVBAR */}
+      {/* =====================================================
+          NAVBAR
+      ===================================================== */}
 
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-6 py-4 text-white shadow-xl backdrop-blur-xl md:px-10">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between">
+
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4">
+
+          {/* BRAND */}
 
           <a
             href="/"
@@ -407,7 +402,9 @@ export default function AdminDashboard() {
             THE YARN SPOT
           </a>
 
-          <div className="hidden items-center gap-7 text-sm md:flex">
+          {/* NAV LINKS */}
+
+          <div className="hidden items-center gap-4 text-sm lg:flex">
 
             <a
               href="/"
@@ -427,32 +424,57 @@ export default function AdminDashboard() {
               Admin
             </span>
 
+            {/* MANAGE PRODUCTS */}
+
+            <a
+              href="/admin-products"
+              className="rounded-full bg-[#D4A017] px-4 py-2 font-semibold text-black transition hover:bg-white"
+            >
+              Manage Products
+            </a>
+
           </div>
 
-          <button
-            onClick={() => fetchOrders(true)}
-            disabled={refreshing}
-            className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-4 py-2 text-sm transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50"
-          >
-            <span
-              className={
-                refreshing ? "animate-spin" : ""
-              }
-            >
-              ↻
-            </span>
+          {/* MOBILE MANAGE PRODUCTS */}
 
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+
+            <a
+              href="/admin-products"
+              className="rounded-full bg-[#D4A017] px-4 py-2 text-xs font-semibold text-black transition hover:bg-white sm:text-sm lg:hidden"
+            >
+              Products
+            </a>
+
+            <button
+              onClick={() => fetchOrders(true)}
+              disabled={refreshing}
+              className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-4 py-2 text-sm transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50"
+            >
+              <span className={refreshing ? "animate-spin" : ""}>
+                ↻
+              </span>
+
+              <span className="hidden sm:inline">
+                Refresh
+              </span>
+            </button>
+
+          </div>
 
         </div>
+
       </nav>
 
-      {/* MAIN */}
+      {/* =====================================================
+          MAIN
+      ===================================================== */}
 
       <main className="mx-auto max-w-[1500px] px-5 py-8 md:px-10 md:py-12">
 
-        {/* HEADER */}
+        {/* ===================================================
+            HEADER
+        =================================================== */}
 
         <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
 
@@ -473,30 +495,49 @@ export default function AdminDashboard() {
 
           </div>
 
-          <div className="rounded-2xl border border-black/5 bg-white px-5 py-4 shadow-sm">
+          <div className="flex flex-wrap gap-3">
 
-            <p className="text-xs uppercase tracking-[2px] text-gray-400">
-              Today
-            </p>
+            {/* MANAGE PRODUCTS BUTTON */}
 
-            <p className="mt-1 font-semibold">
-              {new Date().toLocaleDateString(
-                "en-PK",
-                {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                }
-              )}
-            </p>
+            <a
+              href="/admin-products"
+              className="rounded-2xl bg-black px-5 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#D4A017] hover:text-black"
+            >
+              🧶 Manage Products
+            </a>
+
+            {/* TODAY */}
+
+            <div className="rounded-2xl border border-black/5 bg-white px-5 py-4 shadow-sm">
+
+              <p className="text-xs uppercase tracking-[2px] text-gray-400">
+                Today
+              </p>
+
+              <p className="mt-1 font-semibold">
+                {new Date().toLocaleDateString(
+                  "en-PK",
+                  {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  }
+                )}
+              </p>
+
+            </div>
 
           </div>
 
         </div>
 
-        {/* STATS */}
+        {/* ===================================================
+            STATS
+        =================================================== */}
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+          {/* TOTAL */}
 
           <div className="group rounded-3xl bg-black p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1">
 
@@ -522,6 +563,8 @@ export default function AdminDashboard() {
 
           </div>
 
+          {/* PENDING */}
+
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -546,6 +589,8 @@ export default function AdminDashboard() {
 
           </div>
 
+          {/* DELIVERED */}
+
           <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
@@ -569,6 +614,8 @@ export default function AdminDashboard() {
             </p>
 
           </div>
+
+          {/* REVENUE */}
 
           <div className="rounded-3xl border border-[#D4A017]/30 bg-[#D4A017] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
@@ -596,7 +643,9 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* SECONDARY STATS */}
+        {/* ===================================================
+            SECONDARY STATS
+        =================================================== */}
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
 
@@ -642,7 +691,9 @@ export default function AdminDashboard() {
 
         </div>
 
-        {/* ORDERS */}
+        {/* ===================================================
+            ORDERS
+        =================================================== */}
 
         <section className="mt-10 rounded-[30px] bg-white p-5 shadow-sm md:p-7">
 
@@ -693,10 +744,7 @@ export default function AdminDashboard() {
                 </option>
 
                 {STATUS_OPTIONS.map((status) => (
-                  <option
-                    key={status}
-                    value={status}
-                  >
+                  <option key={status} value={status}>
                     {status}
                   </option>
                 ))}
@@ -759,7 +807,9 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* DESKTOP TABLE */}
+          {/* =================================================
+              DESKTOP TABLE
+          ================================================= */}
 
           {filteredOrders.length > 0 && (
             <div className="mt-5 hidden overflow-x-auto lg:block">
@@ -806,8 +856,7 @@ export default function AdminDashboard() {
 
                   {filteredOrders.map((order) => {
 
-                    const customer =
-                      order.customer || {};
+                    const customer = order.customer || {};
 
                     const itemCount =
                       order.items?.reduce(
@@ -920,15 +969,16 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* MOBILE CARDS */}
+          {/* =================================================
+              MOBILE CARDS
+          ================================================= */}
 
           {filteredOrders.length > 0 && (
             <div className="mt-5 space-y-4 lg:hidden">
 
               {filteredOrders.map((order) => {
 
-                const customer =
-                  order.customer || {};
+                const customer = order.customer || {};
 
                 const itemCount =
                   order.items?.reduce(
@@ -1034,7 +1084,9 @@ export default function AdminDashboard() {
 
       </main>
 
-      {/* ORDER MODAL */}
+      {/* =====================================================
+          ORDER MODAL
+      ===================================================== */}
 
       {selectedOrder && (
         <div
@@ -1299,10 +1351,7 @@ export default function AdminDashboard() {
                   >
 
                     {STATUS_OPTIONS.map((status) => (
-                      <option
-                        key={status}
-                        value={status}
-                      >
+                      <option key={status} value={status}>
                         {status}
                       </option>
                     ))}
@@ -1406,3 +1455,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

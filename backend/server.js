@@ -12,10 +12,6 @@ const adminRoutes = require("./Routes/AdminRoutes");
 
 const app = express();
 
-// =====================================================
-// MIDDLEWARE
-// =====================================================
-
 app.use(
   cors({
     origin: "*",
@@ -30,10 +26,6 @@ app.use(
   })
 );
 
-// =====================================================
-// UPLOADS FOLDER
-// =====================================================
-
 const uploadsFolder = path.join(
   __dirname,
   "uploads"
@@ -45,18 +37,10 @@ if (!fs.existsSync(uploadsFolder)) {
   });
 }
 
-// =====================================================
-// SERVE UPLOADED IMAGES
-// =====================================================
-
 app.use(
   "/uploads",
   express.static(uploadsFolder)
 );
-
-// =====================================================
-// API ROUTES
-// =====================================================
 
 app.use(
   "/api/products",
@@ -73,19 +57,11 @@ app.use(
   adminRoutes
 );
 
-// =====================================================
-// TEST ROUTE
-// =====================================================
-
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "The Yarn Spot Backend is running!",
   });
 });
-
-// =====================================================
-// 404
-// =====================================================
 
 app.use((req, res) => {
   res.status(404).json({
@@ -93,10 +69,6 @@ app.use((req, res) => {
     path: req.originalUrl,
   });
 });
-
-// =====================================================
-// ERROR HANDLER
-// =====================================================
 
 app.use((error, req, res, next) => {
   console.error("SERVER ERROR:", error);
@@ -107,10 +79,6 @@ app.use((error, req, res, next) => {
       "Something went wrong",
   });
 });
-
-// =====================================================
-// MONGODB CONNECTION
-// =====================================================
 
 let isConnected = false;
 
@@ -134,10 +102,6 @@ async function connectDB() {
   );
 }
 
-// =====================================================
-// VERCEL SERVERLESS HANDLER
-// =====================================================
-
 module.exports = async (req, res) => {
   try {
     await connectDB();
@@ -155,4 +119,3 @@ module.exports = async (req, res) => {
     });
   }
 };
-
