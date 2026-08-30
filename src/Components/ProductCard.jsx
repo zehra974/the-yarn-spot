@@ -6,7 +6,7 @@ const BACKEND_URL =
 
 export default function ProductCard({
   product,
-  onAddToCart,git add src/Components/ProductCard.jsx
+  onAddToCart, 
 }) {
   const getImageUrl = (image) => {
     if (!image) {
