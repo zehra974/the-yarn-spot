@@ -13,7 +13,9 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ==========================================
   // FETCH ORDERS
+  // ==========================================
 
   const fetchOrders = async () => {
     try {
@@ -38,10 +40,7 @@ export default function Orders() {
           : []
       );
     } catch (err) {
-      console.error(
-        "Orders fetch error:",
-        err
-      );
+      console.error("Orders fetch error:", err);
 
       setError(
         err.message ||
@@ -56,7 +55,9 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
+  // ==========================================
   // UPDATE ORDER STATUS
+  // ==========================================
 
   const updateStatus = async (
     orderId,
@@ -102,7 +103,9 @@ export default function Orders() {
     }
   };
 
+  // ==========================================
   // LOADING
+  // ==========================================
 
   if (loading) {
     return (
@@ -114,7 +117,9 @@ export default function Orders() {
     );
   }
 
+  // ==========================================
   // ERROR
+  // ==========================================
 
   if (error) {
     return (
@@ -133,6 +138,10 @@ export default function Orders() {
     );
   }
 
+  // ==========================================
+  // PAGE
+  // ==========================================
+
   return (
     <div className="p-6 md:p-10">
 
@@ -149,7 +158,8 @@ export default function Orders() {
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Manage customer orders and payment confirmation.
+          Manage customer orders and payment
+          confirmation.
         </p>
 
       </div>
@@ -328,52 +338,57 @@ export default function Orders() {
                   {order.items?.length > 0 ? (
 
                     order.items.map(
-                      (item, index) => (
+                      (item, index) => {
 
-                        <div
-                          key={
-                            item._id ||
-                            index
-                          }
-                          className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
-                        >
+                        const quantity =
+                          Number(
+                            item.quantity || 1
+                          );
 
-                          <div>
+                        const price =
+                          Number(
+                            item.price || 0
+                          );
 
-                            <p className="font-semibold">
-                              {item.name ||
-                                "Unnamed Product"}
-                            </p>
+                        const itemTotal =
+                          price * quantity;
 
-                            <p className="text-sm text-gray-500">
-                              Quantity:{" "}
-                              {item.quantity ||
-                                1}
-                            </p>
+                        return (
+                          <div
+                            key={
+                              item._id ||
+                              index
+                            }
+                            className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                          >
 
-                            <p className="text-sm text-gray-500">
-                              Price: Rs.{" "}
-                              {Number(
-                                item.price ||
-                                  0
-                              ).toLocaleString()}
+                            <div>
+
+                              <p className="font-semibold">
+                                {item.name ||
+                                  "Unnamed Product"}
+                              </p>
+
+                              <p className="text-sm text-gray-500">
+                                Quantity:{" "}
+                                {quantity}
+                              </p>
+
+                              <p className="text-sm text-gray-500">
+                                Price: Rs.{" "}
+                                {price.toLocaleString()}
+                              </p>
+
+                            </div>
+
+                            <p className="font-semibold text-[#8B6914]">
+                              Rs.{" "}
+                              {itemTotal.toLocaleString()}
                             </p>
 
                           </div>
-
-                          <p className="font-semibold text-[#8B6914]">
-                            Rs.{" "}
-                            {Number(
-                              (item.price ||
-                                0) *
-                                (item.quantity ||
-                                  1)
-                            ).toLocaleString()}
-                          </p>
-
-                        </div>
-
-                      )
+                        );
+                      }
                     )
 
                   ) : (
@@ -433,8 +448,7 @@ export default function Orders() {
                     <p className="mt-1 font-semibold text-[#8B6914]">
                       Rs.{" "}
                       {Number(
-                        order.paidAmount ||
-                          0
+                        order.paidAmount || 0
                       ).toLocaleString()}
                     </p>
 
@@ -473,14 +487,11 @@ export default function Orders() {
                   <p className="mt-1 text-xl font-bold text-[#8B6914]">
                     Rs.{" "}
                     {Number(
-                      order.totalAmount ||
-                        0
+                      order.totalAmount || 0
                     ).toLocaleString()}
                   </p>
 
                 </div>
-
-                {/* VIEW DETAILS */}
 
                 <Link
                   to={`/admin/orders/${order._id}`}
