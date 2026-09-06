@@ -174,7 +174,19 @@ export default function OrderDetails() {
             </p>
 
             <p className="mt-1 break-all font-semibold">
-              #{order._id}
+              {/* ORDER ID */}
+
+<div>
+
+  <p className="text-sm text-gray-400">
+    Order ID
+  </p>
+
+  <p className="mt-1 break-all font-semibold">
+    #{order.orderNumber || order._id}
+  </p>
+
+</div>
             </p>
 
           </div>
