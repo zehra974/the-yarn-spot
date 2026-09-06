@@ -3,6 +3,17 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     // =====================================================
+    // SHORT ORDER NUMBER
+    // =====================================================
+
+    orderNumber: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+
+    // =====================================================
     // CUSTOMER INFORMATION
     // =====================================================
 

@@ -15,7 +15,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 // =====================================================
 // EMAIL CONFIGURATION CHECK
 // =====================================================
@@ -71,10 +70,7 @@ const createOrder = async (req, res) => {
     // CHECK ITEMS
     // =================================================
 
-    if (
-      !Array.isArray(items) ||
-      items.length === 0
-    ) {
+    if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         message: "Order must contain at least one item",
       });
@@ -86,10 +82,7 @@ const createOrder = async (req, res) => {
 
     const orderTotal = Number(totalAmount);
 
-    if (
-      !Number.isFinite(orderTotal) ||
-      orderTotal <= 0
-    ) {
+    if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
       return res.status(400).json({
         message: "Valid total amount is required",
       });
@@ -100,9 +93,7 @@ const createOrder = async (req, res) => {
     // =================================================
 
     const selectedPaymentType =
-      paymentType === "Full"
-        ? "Full"
-        : "Advance";
+      paymentType === "Full" ? "Full" : "Advance";
 
     // =================================================
     // PAYMENT AMOUNT
@@ -149,9 +140,7 @@ const createOrder = async (req, res) => {
 
       phone: customer.phone.trim(),
 
-      email: customer.email
-        .trim()
-        .toLowerCase(),
+      email: customer.email.trim().toLowerCase(),
 
       city: customer.city.trim(),
 
@@ -187,10 +176,24 @@ const createOrder = async (req, res) => {
     }));
 
     // =================================================
+    // GENERATE SHORT ORDER NUMBER
+    // =================================================
+
+    let orderNumber;
+
+    do {
+      orderNumber = Math.floor(
+        1000000000 + Math.random() * 9000000000
+      ).toString();
+    } while (await Order.exists({ orderNumber }));
+
+    // =================================================
     // CREATE ORDER
     // =================================================
 
     const order = await Order.create({
+      orderNumber,
+
       customer: customerData,
 
       items: orderItems,
@@ -224,17 +227,32 @@ const createOrder = async (req, res) => {
 
     console.log(
       "Order saved successfully:",
+      order.orderNumber
+    );
+
+    console.log(
+      "MongoDB ID:",
       order._id.toString()
     );
 
+    console.log(
+      "DATABASE NAME:",
+      mongoose.connection.name
+    );
 
+    console.log(
+      "ORDER COLLECTION:",
+      Order.collection.name
+    );
 
-     console.log("DATABASE NAME:", mongoose.connection.name);
-console.log("ORDER COLLECTION:", Order.collection.name);
+    const checkOrder = await Order.findById(order._id);
 
-const checkOrder = await Order.findById(order._id);
-console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
-
+    console.log(
+      "ORDER CHECK:",
+      checkOrder
+        ? "FOUND IN DATABASE"
+        : "NOT FOUND"
+    );
 
     console.log(
       "Payment Type:",
@@ -376,7 +394,7 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
               <p>
                 <strong>Order ID:</strong>
-                ${order._id}
+                ${order.orderNumber}
               </p>
 
               <p>
@@ -411,8 +429,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
                   "No special notes"
                 }
               </p>
-
-              <!-- PAYMENT -->
 
               <h2 style="margin-top:30px;">
                 Payment Information
@@ -464,8 +480,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
               </div>
 
-              <!-- ITEMS -->
-
               <h2 style="margin-top:30px;">
                 Order Items
               </h2>
@@ -510,8 +524,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
                 </tbody>
 
               </table>
-
-              <!-- TOTAL -->
 
               <div style="
                 margin-top:25px;
@@ -643,8 +655,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
               </p>
 
-              <!-- ORDER ID -->
-
               <div style="
                 margin-top:20px;
                 padding:15px;
@@ -658,13 +668,11 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
                     Order ID:
                   </strong>
 
-                  ${order._id}
+                  ${order.orderNumber}
 
                 </p>
 
               </div>
-
-              <!-- PAYMENT SUMMARY -->
 
               <h2 style="margin-top:30px;">
                 Payment Summary
@@ -718,11 +726,7 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
               </div>
 
-              <!-- ITEMS -->
-
-              <h2 style="
-                margin-top:30px;
-              ">
+              <h2 style="margin-top:30px;">
                 Your Order
               </h2>
 
@@ -778,8 +782,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
               </table>
 
-              <!-- TOTAL -->
-
               <div style="
                 margin-top:25px;
                 padding:20px;
@@ -801,8 +803,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
                 </h2>
 
               </div>
-
-              <!-- DELIVERY -->
 
               <div style="
                 margin-top:25px;
@@ -903,12 +903,10 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
     return res.status(201).json({
       message: "Order placed successfully",
-
       order,
     });
 
   } catch (error) {
-
     console.error(
       "Create Order Error:",
       error
@@ -916,7 +914,6 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
     return res.status(500).json({
       message: "Failed to create order",
-
       error: error.message,
     });
   }
@@ -928,18 +925,14 @@ console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
 
 const getOrders = async (req, res) => {
   try {
-
     const orders = await Order.find()
       .sort({
         createdAt: -1,
       });
 
-    return res.status(200).json(
-      orders
-    );
+    return res.status(200).json(orders);
 
   } catch (error) {
-
     console.error(
       "Get Orders Error:",
       error
@@ -947,7 +940,6 @@ const getOrders = async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to get orders",
-
       error: error.message,
     });
   }
@@ -959,11 +951,9 @@ const getOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-
-    const order =
-      await Order.findById(
-        req.params.id
-      );
+    const order = await Order.findById(
+      req.params.id
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -971,12 +961,9 @@ const getOrderById = async (req, res) => {
       });
     }
 
-    return res.status(200).json(
-      order
-    );
+    return res.status(200).json(order);
 
   } catch (error) {
-
     console.error(
       "Get Order Error:",
       error
@@ -984,7 +971,6 @@ const getOrderById = async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to get order",
-
       error: error.message,
     });
   }
@@ -999,7 +985,6 @@ const updateOrderStatus = async (
   res
 ) => {
   try {
-
     const { status } = req.body;
 
     // =================================================
@@ -1015,12 +1000,9 @@ const updateOrderStatus = async (
       "Cancelled",
     ];
 
-    if (
-      !allowedStatuses.includes(status)
-    ) {
+    if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
         message: "Invalid order status",
-
         allowedStatuses,
       });
     }
@@ -1029,10 +1011,9 @@ const updateOrderStatus = async (
     // FIND ORDER
     // =================================================
 
-    const order =
-      await Order.findById(
-        req.params.id
-      );
+    const order = await Order.findById(
+      req.params.id
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -1049,7 +1030,7 @@ const updateOrderStatus = async (
     await order.save();
 
     console.log(
-      `Order ${order._id} status changed to ${status}`
+      `Order ${order.orderNumber} status changed to ${status}`
     );
 
     // =================================================
@@ -1057,14 +1038,10 @@ const updateOrderStatus = async (
     // =================================================
 
     try {
-
       await transporter.sendMail({
+        from: process.env.EMAIL_USER,
 
-        from:
-          process.env.EMAIL_USER,
-
-        to:
-          order.customer.email,
+        to: order.customer.email,
 
         subject:
           `The Yarn Spot - Order ${status}`,
@@ -1136,7 +1113,7 @@ const updateOrderStatus = async (
                     Order ID:
                   </strong>
 
-                  ${order._id}
+                  ${order.orderNumber}
 
                 </p>
 
@@ -1240,7 +1217,6 @@ const updateOrderStatus = async (
       );
 
     } catch (emailError) {
-
       console.error(
         "Customer status email error:",
         emailError
@@ -1252,29 +1228,21 @@ const updateOrderStatus = async (
     // =================================================
 
     return res.status(200).json({
-
       message:
         "Order status updated successfully",
-
       order,
-
     });
 
   } catch (error) {
-
     console.error(
       "Update Order Status Error:",
       error
     );
 
     return res.status(500).json({
-
       message:
         "Failed to update order status",
-
-      error:
-        error.message,
-
+      error: error.message,
     });
   }
 };
@@ -1285,7 +1253,6 @@ const updateOrderStatus = async (
 
 const updatePayment = async (req, res) => {
   try {
-
     const {
       status,
       transactionId,
@@ -1304,14 +1271,11 @@ const updatePayment = async (req, res) => {
     ];
 
     if (
-      !allowedPaymentStatuses.includes(
-        status
-      )
+      !allowedPaymentStatuses.includes(status)
     ) {
       return res.status(400).json({
         message:
           "Invalid payment status",
-
         allowedPaymentStatuses,
       });
     }
@@ -1320,10 +1284,9 @@ const updatePayment = async (req, res) => {
     // FIND ORDER
     // =================================================
 
-    const order =
-      await Order.findById(
-        req.params.id
-      );
+    const order = await Order.findById(
+      req.params.id
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -1347,16 +1310,16 @@ const updatePayment = async (req, res) => {
     // PAYMENT DATE
     // =================================================
 
-    if (status === "Paid" ||
-        status === "Partially Paid") {
-
+    if (
+      status === "Paid" ||
+      status === "Partially Paid"
+    ) {
       order.payment.paymentDate =
         paymentDate
           ? new Date(paymentDate)
           : new Date();
 
     } else if (status === "Pending") {
-
       order.payment.paymentDate = null;
     }
 
@@ -1374,7 +1337,7 @@ const updatePayment = async (req, res) => {
     await order.save();
 
     console.log(
-      `Payment for order ${order._id} updated to ${status}`
+      `Payment for order ${order.orderNumber} updated to ${status}`
     );
 
     // =================================================
@@ -1382,14 +1345,10 @@ const updatePayment = async (req, res) => {
     // =================================================
 
     try {
-
       await transporter.sendMail({
+        from: process.env.EMAIL_USER,
 
-        from:
-          process.env.EMAIL_USER,
-
-        to:
-          order.customer.email,
+        to: order.customer.email,
 
         subject:
           `The Yarn Spot - Payment ${status}`,
@@ -1456,7 +1415,7 @@ const updatePayment = async (req, res) => {
                     Order ID:
                   </strong>
 
-                  ${order._id}
+                  ${order.orderNumber}
                 </p>
 
                 <p>
@@ -1560,7 +1519,6 @@ const updatePayment = async (req, res) => {
       );
 
     } catch (emailError) {
-
       console.error(
         "Payment email error:",
         emailError
@@ -1572,29 +1530,22 @@ const updatePayment = async (req, res) => {
     // =================================================
 
     return res.status(200).json({
-
       message:
         "Payment updated successfully",
-
       order,
-
     });
 
   } catch (error) {
-
     console.error(
       "Update Payment Error:",
       error
     );
 
     return res.status(500).json({
-
       message:
         "Failed to update payment",
-
       error:
         error.message,
-
     });
   }
 };
