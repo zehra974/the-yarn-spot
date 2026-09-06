@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
 // =====================================================
 // EMAIL CONFIGURATION CHECK
 // =====================================================
