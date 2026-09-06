@@ -177,14 +177,17 @@ const createOrder = async (req, res) => {
 
     // =================================================
     // GENERATE SHORT ORDER NUMBER
+    // Example: TY482731
     // =================================================
 
     let orderNumber;
 
     do {
-      orderNumber = Math.floor(
-        1000000000 + Math.random() * 9000000000
+      const randomNumber = Math.floor(
+        100000 + Math.random() * 900000
       ).toString();
+
+      orderNumber = `TY${randomNumber}`;
     } while (await Order.exists({ orderNumber }));
 
     // =================================================

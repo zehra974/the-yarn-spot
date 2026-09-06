@@ -4,6 +4,7 @@ const orderSchema = new mongoose.Schema(
   {
     // =====================================================
     // SHORT ORDER NUMBER
+    // Example: TY482731
     // =====================================================
 
     orderNumber: {
