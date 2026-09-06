@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`;
+const API_URL = "http://localhost:8000/api/orders";
 
 const STATUS_OPTIONS = [
   "Pending Payment",
@@ -72,6 +72,15 @@ export default function AdminDashboard() {
   });
 
   // =========================================================
+  // LOGOUT
+  // =========================================================
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    window.location.replace("/admin-login");
+  };
+
+  // =========================================================
   // AUTH CHECK
   // =========================================================
 
@@ -121,12 +130,25 @@ export default function AdminDashboard() {
         return;
       }
 
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const rawResponse = await response.text();
+
+        console.error(
+          "Orders API returned non-JSON:",
+          rawResponse.slice(0, 300)
+        );
+
+        throw new Error(
+          "Orders API returned an unexpected response. Please check that the local backend is running on port 8000."
+        );
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to fetch orders"
-        );
+        throw new Error(data.message || "Failed to fetch orders");
       }
 
       setOrders(Array.isArray(data) ? data : []);
@@ -177,19 +199,31 @@ export default function AdminDashboard() {
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/${orderId}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: newStatus,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const rawResponse = await response.text();
+
+        console.error(
+          "Status API returned non-JSON:",
+          rawResponse.slice(0, 300)
+        );
+
+        throw new Error(
+          "Status update API returned an unexpected response. Please check the local backend."
+        );
+      }
 
       const data = await response.json();
 
@@ -216,10 +250,7 @@ export default function AdminDashboard() {
         )
       );
 
-      if (
-        selectedOrder &&
-        selectedOrder._id === orderId
-      ) {
+      if (selectedOrder && selectedOrder._id === orderId) {
         setSelectedOrder((previous) => ({
           ...previous,
           status: newStatus,
@@ -373,7 +404,7 @@ export default function AdminDashboard() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#F7F1E3] text-[#171717]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_rgba(212,160,23,0.10),_transparent_28%),linear-gradient(180deg,#faf8f2_0%,#f7f1e3_100%)] text-[#171717]">
 
       {/* TOAST */}
 
@@ -397,7 +428,7 @@ export default function AdminDashboard() {
 
       {/* NAVBAR */}
 
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-6 py-4 text-white shadow-xl backdrop-blur-xl md:px-10">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0b0b]/95 px-5 py-4 text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl md:px-10">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between">
 
           <a
@@ -407,54 +438,75 @@ export default function AdminDashboard() {
             THE YARN SPOT
           </a>
 
-          <div className="hidden items-center gap-7 text-sm md:flex">
+        <div className="hidden items-center gap-7 text-sm md:flex">
 
-            <a
-              href="/"
-              className="text-gray-400 transition hover:text-[#D4A017]"
+  <a
+    href="/"
+    className="text-gray-400 transition hover:text-[#D4A017]"
+  >
+    Website
+  </a>
+
+  <a
+    href="/shop"
+    className="text-gray-400 transition hover:text-[#D4A017]"
+  >
+    Shop
+  </a>
+
+  <a
+    href="/admin/products"
+    className="rounded-full bg-[#D4A017]/10 px-4 py-2 text-[#D4A017] transition hover:bg-[#D4A017] hover:text-black"
+  >
+    Manage Products
+  </a>
+
+  <span className="rounded-full bg-white/10 px-4 py-2 text-gray-300">
+    Admin
+  </span>
+
+</div>
+          <div className="flex items-center gap-2">
+
+            {/* REFRESH */}
+
+            <button
+              onClick={() => fetchOrders(true)}
+              disabled={refreshing}
+              className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-4 py-2 text-sm transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50"
             >
-              Website
-            </a>
+              <span
+                className={
+                  refreshing ? "animate-spin" : ""
+                }
+              >
+                ↻
+              </span>
 
-            <a
-              href="/shop"
-              className="text-gray-400 transition hover:text-[#D4A017]"
+              Refresh
+            </button>
+
+            {/* LOGOUT */}
+
+            <button
+              onClick={handleLogout}
+              className="rounded-full border border-red-400/50 px-4 py-2 text-sm text-red-300 transition hover:bg-red-500 hover:text-white"
             >
-              Shop
-            </a>
-
-            <span className="rounded-full bg-[#D4A017]/10 px-4 py-2 text-[#D4A017]">
-              Admin
-            </span>
+              Logout
+            </button>
 
           </div>
-
-          <button
-            onClick={() => fetchOrders(true)}
-            disabled={refreshing}
-            className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-4 py-2 text-sm transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50"
-          >
-            <span
-              className={
-                refreshing ? "animate-spin" : ""
-              }
-            >
-              ↻
-            </span>
-
-            Refresh
-          </button>
 
         </div>
       </nav>
 
       {/* MAIN */}
 
-      <main className="mx-auto max-w-[1500px] px-5 py-8 md:px-10 md:py-12">
+      <main className="mx-auto max-w-[1500px] px-4 py-8 md:px-8 md:py-12 lg:px-10">
 
         {/* HEADER */}
 
-        <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <div className="mb-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
 
           <div>
 
@@ -471,9 +523,14 @@ export default function AdminDashboard() {
               and keep everything organised.
             </p>
 
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white/70 px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Store operations active
+            </div>
+
           </div>
 
-          <div className="rounded-2xl border border-black/5 bg-white px-5 py-4 shadow-sm">
+          <div className="rounded-2xl border border-black/5 bg-white/80 px-5 py-4 shadow-[0_12px_35px_rgba(0,0,0,0.06)] backdrop-blur">
 
             <p className="text-xs uppercase tracking-[2px] text-gray-400">
               Today
@@ -498,7 +555,7 @@ export default function AdminDashboard() {
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-          <div className="group rounded-3xl bg-black p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1">
+          <div className="group rounded-3xl bg-[#0b0b0b] p-6 text-white shadow-[0_18px_45px_rgba(0,0,0,0.16)] transition duration-300 hover:-translate-y-1">
 
             <div className="mb-7 flex items-center justify-between">
 
@@ -522,7 +579,7 @@ export default function AdminDashboard() {
 
           </div>
 
-          <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="rounded-3xl border border-black/5 bg-white/90 p-6 shadow-[0_12px_35px_rgba(0,0,0,0.05)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
 
@@ -546,7 +603,7 @@ export default function AdminDashboard() {
 
           </div>
 
-          <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="rounded-3xl border border-black/5 bg-white/90 p-6 shadow-[0_12px_35px_rgba(0,0,0,0.05)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
 
@@ -570,7 +627,7 @@ export default function AdminDashboard() {
 
           </div>
 
-          <div className="rounded-3xl border border-[#D4A017]/30 bg-[#D4A017] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="rounded-3xl border border-[#D4A017]/30 bg-[#D4A017] p-6 shadow-[0_12px_35px_rgba(212,160,23,0.20)] transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
             <div className="mb-7 flex items-center justify-between">
 
@@ -600,7 +657,7 @@ export default function AdminDashboard() {
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
 
-          <div className="rounded-2xl bg-white p-5">
+          <div className="rounded-2xl border border-black/5 bg-white/85 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-xs text-gray-400">
               Confirmed
             </p>
@@ -610,7 +667,7 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-5">
+          <div className="rounded-2xl border border-black/5 bg-white/85 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-xs text-gray-400">
               Processing
             </p>
@@ -620,7 +677,7 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-5">
+          <div className="rounded-2xl border border-black/5 bg-white/85 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-xs text-gray-400">
               Shipped
             </p>
@@ -630,7 +687,7 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-5">
+          <div className="rounded-2xl border border-black/5 bg-white/85 p-5 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-xs text-gray-400">
               Cancelled
             </p>
@@ -644,7 +701,7 @@ export default function AdminDashboard() {
 
         {/* ORDERS */}
 
-        <section className="mt-10 rounded-[30px] bg-white p-5 shadow-sm md:p-7">
+        <section className="mt-10 overflow-hidden rounded-[30px] border border-black/5 bg-white/95 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] backdrop-blur md:p-7">
 
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
 

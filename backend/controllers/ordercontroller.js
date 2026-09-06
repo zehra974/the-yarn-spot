@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
+const mongoose = require("mongoose");
 
 // =====================================================
 // EMAIL TRANSPORTER
@@ -224,6 +225,15 @@ const createOrder = async (req, res) => {
       "Order saved successfully:",
       order._id.toString()
     );
+
+
+
+     console.log("DATABASE NAME:", mongoose.connection.name);
+console.log("ORDER COLLECTION:", Order.collection.name);
+
+const checkOrder = await Order.findById(order._id);
+console.log("ORDER CHECK:", checkOrder ? "FOUND IN DATABASE" : "NOT FOUND");
+
 
     console.log(
       "Payment Type:",

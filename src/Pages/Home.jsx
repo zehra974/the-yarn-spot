@@ -1,3 +1,4 @@
+import Navbar from "../Components/Navbar";
 import React, { useEffect, useRef } from "react";
 import { useCart } from "../Context/CartContext";
 import gsap from "gsap";
@@ -198,7 +199,7 @@ export default function Home() {
       className="min-h-screen bg-[#F7F1E3] text-[#171717]"
     >
 
-      {/* NAVBAR */}
+      {/* NAVBAR
       <nav className="flex items-center justify-between px-6 md:px-16 py-3 bg-black text-white">
 
         <a href="/" className="flex items-center">
@@ -242,8 +243,8 @@ export default function Home() {
         </a>
 
       </nav>
-
-
+ */}
+     <Navbar />
       {/* HERO SECTION */}
       <section className="grid md:grid-cols-2 min-h-[600px] items-center px-6 md:px-16 py-16 gap-12 overflow-hidden">
 

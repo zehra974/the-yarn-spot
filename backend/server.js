@@ -154,4 +154,22 @@ module.exports = async (req, res) => {
       error: error.message,
     });
   }
-};``
+};
+// =====================================================
+// LOCAL SERVER
+// =====================================================
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 8000;
+
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("Failed to start server:", error);
+      process.exit(1);
+    });
+}

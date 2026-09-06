@@ -7,11 +7,13 @@ import About from "./Pages/About";
 import Cart from "./Pages/Cart";
 import Checkout from "./Pages/Checkout";
 
+import ProtectedRoute from "./Admin/ProtectedRoute";
 import AdminDashboard from "./Admin/AdminDashboard";
 import Orders from "./Admin/Orders";
 import OrdersDetails from "./Admin/Orders Details";
 import AdminLogin from "./Admin/AdminLogin";
 import AdminProductManager from "./Components/AdminProductManager";
+import ResetPassword from "./Admin/ResetPassword";
 
 function App() {
   return (
@@ -56,26 +58,57 @@ function App() {
             path="/admin-login"
             element={<AdminLogin />}
           />
-
-          {/* =========================
-              ADMIN ROUTES
-          ========================= */}
-
+          
           <Route
-            path="/admin"
-            element={<AdminDashboard />}
-          />
+  path="/admin/reset-password"
+  element={<ResetPassword />}
+/>
 
-          <Route
-            path="/admin/orders"
-            element={<Orders />}
-          />
+  {/* ADMIN LOGIN */}
+<Route
+  path="/admin-login"
+  element={<AdminLogin />}
+/>
 
-          <Route
-            path="/admin/products"
-            element={<AdminProductManager />}
-          />
+{/* PROTECTED ADMIN DASHBOARD */}
+<Route
+  path="/admin"
+  element={
+    <ProtectedRoute>
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>
 
+{/* PROTECTED ADMIN ORDERS */}
+<Route
+  path="/admin/orders"
+  element={
+    <ProtectedRoute>
+      <Orders />
+    </ProtectedRoute>
+  }
+/>
+
+{/* PROTECTED ADMIN PRODUCTS */}
+<Route
+  path="/admin/products"
+  element={
+    <ProtectedRoute>
+      <AdminProductManager />
+    </ProtectedRoute>
+  }
+/>
+
+{/* PROTECTED ORDER DETAILS */}
+<Route
+  path="/admin/orders/:id"
+  element={
+    <ProtectedRoute>
+      <OrdersDetails />
+    </ProtectedRoute>
+  }
+/>
           <Route
             path="/admin/orders/:id"
             element={<OrdersDetails />}
