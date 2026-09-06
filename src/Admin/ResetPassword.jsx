@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:8000/api/admin";
+const API_URL = "/api/admin";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const API_URL = "http://localhost:8000/api/orders";
+const API_URL = "/api/orders";
 
 const STATUS_OPTIONS = [
   "Pending Payment",
