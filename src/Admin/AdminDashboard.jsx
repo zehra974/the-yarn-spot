@@ -234,9 +234,7 @@ export default function AdminDashboard() {
       }
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to update order status"
-        );
+        throw new Error(data.message || "Failed to update order status");
       }
 
       setOrders((previousOrders) =>
@@ -261,10 +259,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Status update error:", err);
 
-      showToast(
-        err.message || "Status update failed.",
-        "error"
-      );
+      showToast(err.message || "Status update failed.", "error");
     } finally {
       setUpdatingStatus(false);
     }
@@ -282,22 +277,13 @@ export default function AdminDashboard() {
 
       const matchesSearch =
         !searchValue ||
-        customer.fullName
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        customer.phone
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        customer.city
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        order._id
-          ?.toLowerCase()
-          .includes(searchValue);
+        customer.fullName?.toLowerCase().includes(searchValue) ||
+        customer.phone?.toLowerCase().includes(searchValue) ||
+        customer.city?.toLowerCase().includes(searchValue) ||
+        order._id?.toLowerCase().includes(searchValue);
 
       const matchesStatus =
-        statusFilter === "All" ||
-        order.status === statusFilter;
+        statusFilter === "All" || order.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -335,12 +321,9 @@ export default function AdminDashboard() {
     ).length;
 
     const revenue = orders
-      .filter(
-        (order) => order.status !== "Cancelled"
-      )
+      .filter((order) => order.status !== "Cancelled")
       .reduce(
-        (total, order) =>
-          total + Number(order.totalAmount || 0),
+        (total, order) => total + Number(order.totalAmount || 0),
         0
       );
 
@@ -429,6 +412,7 @@ export default function AdminDashboard() {
       {/* NAVBAR */}
 
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0b0b]/95 px-5 py-4 text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl md:px-10">
+
         <div className="mx-auto flex max-w-[1500px] items-center justify-between">
 
           <a
@@ -438,59 +422,73 @@ export default function AdminDashboard() {
             THE YARN SPOT
           </a>
 
-        <div className="hidden items-center gap-7 text-sm md:flex">
+          {/* DESKTOP NAVIGATION */}
 
-  <a
-    href="/"
-    className="text-gray-400 transition hover:text-[#D4A017]"
-  >
-    Website
-  </a>
+          <div className="hidden items-center gap-7 text-sm md:flex">
 
-  <a
-    href="/shop"
-    className="text-gray-400 transition hover:text-[#D4A017]"
-  >
-    Shop
-  </a>
+            <a
+              href="/"
+              className="text-gray-400 transition hover:text-[#D4A017]"
+            >
+              Website
+            </a>
 
-  <a
-    href="/admin/products"
-    className="rounded-full bg-[#D4A017]/10 px-4 py-2 text-[#D4A017] transition hover:bg-[#D4A017] hover:text-black"
-  >
-    Manage Products
-  </a>
+            <a
+              href="/shop"
+              className="text-gray-400 transition hover:text-[#D4A017]"
+            >
+              Shop
+            </a>
 
-  <span className="rounded-full bg-white/10 px-4 py-2 text-gray-300">
-    Admin
-  </span>
+            <a
+              href="/admin/products"
+              className="rounded-full bg-[#D4A017]/10 px-4 py-2 text-[#D4A017] transition hover:bg-[#D4A017] hover:text-black"
+            >
+              Manage Products
+            </a>
 
-</div>
+            <span className="rounded-full bg-white/10 px-4 py-2 text-gray-300">
+              Admin
+            </span>
+
+          </div>
+
+          {/* RIGHT SIDE */}
+
           <div className="flex items-center gap-2">
+
+            {/* MOBILE MANAGE */}
+
+            <a
+              href="/admin/products"
+              className="rounded-full bg-[#D4A017]/10 px-3 py-2 text-xs font-medium text-[#D4A017] transition hover:bg-[#D4A017] hover:text-black md:hidden"
+            >
+              Manage
+            </a>
 
             {/* REFRESH */}
 
             <button
               onClick={() => fetchOrders(true)}
               disabled={refreshing}
-              className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-4 py-2 text-sm transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50"
+              className="flex items-center gap-2 rounded-full border border-[#D4A017]/50 px-3 py-2 text-xs transition hover:bg-[#D4A017] hover:text-black disabled:opacity-50 sm:px-4 sm:text-sm"
             >
               <span
-                className={
-                  refreshing ? "animate-spin" : ""
-                }
+                className={refreshing ? "animate-spin" : ""}
               >
                 ↻
               </span>
 
-              Refresh
+              <span className="hidden sm:inline">
+                Refresh
+              </span>
             </button>
 
             {/* LOGOUT */}
 
             <button
               onClick={handleLogout}
-              className="rounded-full border border-red-400/50 px-4 py-2 text-sm text-red-300 transition hover:bg-red-500 hover:text-white"
+              className="rounded-full border border-red-400/50 px-3 py-2 text-xs text-red-300 transition hover:bg-red-500 hover:text-white sm:px-4 sm:text-sm"
             >
               Logout
             </button>
@@ -537,14 +535,11 @@ export default function AdminDashboard() {
             </p>
 
             <p className="mt-1 font-semibold">
-              {new Date().toLocaleDateString(
-                "en-PK",
-                {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                }
-              )}
+              {new Date().toLocaleDateString("en-PK", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
             </p>
 
           </div>
@@ -728,9 +723,7 @@ export default function AdminDashboard() {
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) =>
-                    setSearch(e.target.value)
-                  }
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search customer..."
                   className="w-full rounded-full border border-gray-200 bg-[#F7F1E3]/40 py-3 pl-10 pr-5 text-sm outline-none transition focus:border-[#D4A017] sm:w-64"
                 />
@@ -739,9 +732,7 @@ export default function AdminDashboard() {
 
               <select
                 value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value)
-                }
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="rounded-full border border-gray-200 bg-white px-5 py-3 text-sm outline-none transition focus:border-[#D4A017]"
               >
 
@@ -750,10 +741,7 @@ export default function AdminDashboard() {
                 </option>
 
                 {STATUS_OPTIONS.map((status) => (
-                  <option
-                    key={status}
-                    value={status}
-                  >
+                  <option key={status} value={status}>
                     {status}
                   </option>
                 ))}
@@ -863,14 +851,12 @@ export default function AdminDashboard() {
 
                   {filteredOrders.map((order) => {
 
-                    const customer =
-                      order.customer || {};
+                    const customer = order.customer || {};
 
                     const itemCount =
                       order.items?.reduce(
                         (total, item) =>
-                          total +
-                          Number(item.quantity || 0),
+                          total + Number(item.quantity || 0),
                         0
                       ) || 0;
 
@@ -956,9 +942,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-5">
 
                           <button
-                            onClick={() =>
-                              setSelectedOrder(order)
-                            }
+                            onClick={() => setSelectedOrder(order)}
                             className="rounded-full bg-black px-4 py-2 text-xs font-medium text-white transition hover:bg-[#D4A017] hover:text-black"
                           >
                             View Order
@@ -984,14 +968,12 @@ export default function AdminDashboard() {
 
               {filteredOrders.map((order) => {
 
-                const customer =
-                  order.customer || {};
+                const customer = order.customer || {};
 
                 const itemCount =
                   order.items?.reduce(
                     (total, item) =>
-                      total +
-                      Number(item.quantity || 0),
+                      total + Number(item.quantity || 0),
                     0
                   ) || 0;
 
@@ -1070,9 +1052,7 @@ export default function AdminDashboard() {
                       </p>
 
                       <button
-                        onClick={() =>
-                          setSelectedOrder(order)
-                        }
+                        onClick={() => setSelectedOrder(order)}
                         className="rounded-full bg-black px-5 py-2.5 text-xs font-medium text-white"
                       >
                         View Order
@@ -1463,3 +1443,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
