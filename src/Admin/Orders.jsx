@@ -243,19 +243,7 @@ export default function Orders() {
                   </p>
 
                   <p className="mt-1 break-all font-semibold">
-                    {/* ORDER ID */}
-
-<div>
-
-  <p className="text-sm text-gray-400">
-    Order ID
-  </p>
-
-  <p className="mt-1 break-all font-semibold">
-    #{order.orderNumber || order._id}
-  </p>
-
-</div>
+                    #{order.orderNumber}
                   </p>
 
                 </div>
@@ -460,6 +448,7 @@ export default function Orders() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Payment Type
                     </p>
@@ -468,9 +457,11 @@ export default function Orders() {
                       {order.paymentType ||
                         "Advance"}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Payment Method
                     </p>
@@ -479,9 +470,11 @@ export default function Orders() {
                       {order.paymentMethod ||
                         "N/A"}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Paid Amount
                     </p>
@@ -493,9 +486,11 @@ export default function Orders() {
                           0
                       ).toLocaleString()}
                     </p>
+
                   </div>
 
                   <div>
+
                     <p className="text-xs text-gray-400">
                       Remaining Amount
                     </p>
@@ -507,6 +502,7 @@ export default function Orders() {
                           0
                       ).toLocaleString()}
                     </p>
+
                   </div>
 
                 </div>

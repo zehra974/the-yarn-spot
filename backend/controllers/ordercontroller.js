@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 
+
 // =====================================================
 // EMAIL TRANSPORTER
 // =====================================================
@@ -39,7 +40,10 @@ const PAYMENT_NUMBER = "03451335590";
 // =====================================================
 
 const createOrder = async (req, res) => {
-  try {
+  console.log("🔥 CREATE ORDER API HIT");
+  console.log("📦 REQUEST BODY:", req.body);
+
+  try { 
     const {
       customer,
       items,
@@ -224,6 +228,10 @@ const createOrder = async (req, res) => {
       status: "Pending Payment",
     });
 
+    // =================================================
+    // ORDER DATABASE LOGS
+    // =================================================
+
     console.log(
       "===================================="
     );
@@ -346,8 +354,13 @@ const createOrder = async (req, res) => {
     // OWNER EMAIL
     // =================================================
 
+    console.log(
+      "📧 SENDING OWNER EMAIL TO:",
+      process.env.EMAIL_USER
+    );
+
     try {
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
 
         to: process.env.EMAIL_USER,
@@ -581,12 +594,18 @@ const createOrder = async (req, res) => {
       });
 
       console.log(
-        "Owner order email sent successfully"
+        "✅ OWNER EMAIL SENT:",
+        info.messageId
+      );
+
+      console.log(
+        "📨 EMAIL RESPONSE:",
+        info.response
       );
 
     } catch (emailError) {
       console.error(
-        "Owner email sending error:",
+        "❌ OWNER EMAIL ERROR:",
         emailError
       );
     }

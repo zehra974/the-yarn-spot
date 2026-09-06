@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const API_URL =
-  "https://the-yarn-spot.vercel.app/api/products";
+const API_URL = "/api/products";
 
 export default function AdminProductManager() {
   const [products, setProducts] = useState([]);
