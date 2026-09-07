@@ -7,6 +7,8 @@ export default function Navbar() {
   const { totalItems } = useCart();
   const { isSignedIn } = useUser();
 
+  const isAdmin = Boolean(localStorage.getItem("adminToken"));
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = () => {
@@ -95,14 +97,16 @@ export default function Navbar() {
             <span>{totalItems}</span>
           </Link>
 
-          {/* ADMIN OPTION */}
-          <Link
-            to="/admin-login"
-            className="rounded-full border border-[#D4A017] bg-transparent px-4 py-2 text-white transition duration-300 hover:-translate-y-1 hover:bg-[#D4A017] hover:text-black"
-            title="Admin Login"
-          >
-            Admin
-          </Link>
+{/* ADMIN OPTION - ADMIN ONLY */}
+{isAdmin && (
+  <Link
+    to="/admin"
+    className="rounded-full border border-[#D4A017] bg-transparent px-4 py-2 text-white transition duration-300 hover:-translate-y-1 hover:bg-[#D4A017] hover:text-black"
+    title="Admin Dashboard"
+  >
+    Admin
+  </Link>
+)}
 
           {/* CUSTOMER AUTHENTICATION */}
           {!isSignedIn ? (
