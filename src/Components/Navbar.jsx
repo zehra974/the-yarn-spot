@@ -254,15 +254,18 @@ export default function Navbar() {
                 {totalItems}
               </span>
             </Link>
-
-            {/* ADMIN */}
-            <Link
-              to="/admin-login"
-              onClick={closeMobileMenu}
-              className="rounded-lg px-4 py-3 text-white transition duration-300 hover:bg-[#D4A017] hover:text-black"
-            >
-              Admin
-            </Link>
+            
+{/* ADMIN - ADMIN ONLY */}
+{isAdmin && (
+  <Link
+    to="/admin"
+    onClick={closeMobileMenu}
+    className="rounded-lg px-4 py-3 text-white transition duration-300 hover:bg-[#D4A017] hover:text-black"
+  >
+    Admin
+  </Link>
+)}
+            
 
             {/* GET STARTED */}
             {!isSignedIn && (
